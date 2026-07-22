@@ -11,7 +11,6 @@ function getCartFromStorage() {
         }
     } catch (e) {}
     
-    // Если пользователь зашел в первый раз
     return [
         {
             id: 101,
@@ -64,19 +63,18 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ==========================================
-   ГЛОБАЛЬНЫЙ ДЕЛЕГАТ КЛИКОВ "В КОРЗИНУ" (100% НАДЕЖНОСТЬ)
+   ГЛОБАЛЬНЫЙ ДЕЛЕГАТ КЛИКОВ "В КОРЗИНУ" (ПК + МОБИЛЬНЫЕ)
    ========================================== */
 function initGlobalCartEvents() {
-    document.addEventListener('click', (e) => {
-        const btn = e.target.closest('.btn');
+    function handleAddToCart(btn, e) {
         if (!btn) return;
-
-        // Проверяем, является ли кнопка добавлением в корзину
         const btnText = btn.textContent.trim().toLowerCase();
-        if (btnText.includes('в корзину') || btnText.includes('добавить в корзину')) {
-            e.preventDefault();
+        
+        // Срабатывает на любую кнопку со словами "в корзину"
+        if (btnText.includes('корзин') || btn.classList.contains('add-to-cart-trigger')) {
+            if (e) e.preventDefault();
 
-            // Ищем родительскую карточку или страницу товара
+            // Ищем карточку товара или страницу товара
             const card = btn.closest('.product-card') || btn.closest('.product-page') || btn.closest('.product-details');
             
             let title = 'OVERSIZE HOODIE URBAN BLACK';
@@ -133,9 +131,23 @@ function initGlobalCartEvents() {
                 btn.textContent = oldText;
             }, 2500);
 
-            // Обновляем визуал боковой корзины если открыта
+            // Обновляем боковую и полную корзину
             if (typeof renderMiniCartGlobal === 'function') renderMiniCartGlobal();
+            if (typeof renderFullCartGlobal === 'function') renderFullCartGlobal();
         }
+    }
+
+    // Слушатель кликов мыши на ПК
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.btn') || e.target.closest('button');
+        if (btn) handleAddToCart(btn, e);
+    });
+
+    // Прямая привязка ко всем кнопкам на случай особенностей браузеров ПК
+    document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            handleAddToCart(btn, e);
+        });
     });
 }
 

@@ -86,7 +86,10 @@ img { max-width: 100%; display: block; object-fit: cover; }
     letter-spacing: 0.5px;
     border-radius: var(--radius-pill);
     border: none;
-    cursor: pointer;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 50 !important;
     transition: var(--transition);
 }
 
@@ -295,7 +298,7 @@ img { max-width: 100%; display: block; object-fit: cover; }
 .search-modal-field { display: flex; align-items: center; gap: 12px; border-bottom: 2px solid var(--color-primary); padding-bottom: 10px; }
 .search-modal-input { width: 100%; border: none; outline: none; font-family: var(--font-heading); font-size: 1.2rem; font-weight: 800; color: var(--color-text-main); }
 
-/* ГЛАВНЫЙ СЛАЙДЕР С КАРТИНКОЙ НА ФОНЕ */
+/* СЛАЙДЕР */
 .slider-section { padding: 0 0 36px; }
 
 .slider-placeholder {
@@ -397,6 +400,7 @@ img { max-width: 100%; display: block; object-fit: cover; }
 .products-grid { display: grid; grid-template-columns: 1fr; gap: 28px; }
 
 .product-card {
+    position: relative;
     background-color: #ffffff;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
@@ -525,7 +529,12 @@ img { max-width: 100%; display: block; object-fit: cover; }
     width: fit-content;
 }
 
-.product-card__footer { margin-top: auto; }
+.product-card__footer {
+    margin-top: auto;
+    position: relative;
+    z-index: 50 !important;
+    pointer-events: auto !important;
+}
 
 .btn.added-to-cart {
     background-color: #475569 !important;
@@ -536,9 +545,7 @@ img { max-width: 100%; display: block; object-fit: cover; }
     cursor: default !important;
 }
 
-/* ==========================================
-   КАТАЛОГ С ИНТЕРАКТИВНЫМИ ФИЛЬТРАМИ
-   ========================================== */
+/* КАТАЛОГ */
 .catalog-page { padding-bottom: 60px; }
 
 .ticker-bar {
@@ -608,18 +615,10 @@ img { max-width: 100%; display: block; object-fit: cover; }
 }
 .filter-dropdown-menu.active { display: flex !important; }
 
-/* ==========================================
-   СТИЛИ СТРАНИЦЫ КОРЗИНЫ (CART.HTML)
-   ========================================== */
+/* КОРЗИНА CART.HTML */
 .cart-page-wrapper { padding: 30px 0 80px; }
 
-.cart-breadcrumbs {
-    font-family: var(--font-heading);
-    font-size: 0.75rem;
-    font-weight: 800;
-    color: var(--color-text-muted);
-    margin-bottom: 16px;
-}
+.cart-breadcrumbs { font-family: var(--font-heading); font-size: 0.75rem; font-weight: 800; color: var(--color-text-muted); margin-bottom: 16px; }
 .cart-breadcrumbs a { color: var(--color-text-muted); }
 .cart-breadcrumbs span { color: var(--color-text-main); }
 
@@ -710,9 +709,7 @@ img { max-width: 100%; display: block; object-fit: cover; }
 .btn-dark-checkout { width: 100%; background-color: #18181b; color: #ffffff; border: none; padding: 16px; font-family: var(--font-heading); font-size: 0.95rem; font-weight: 900; border-radius: 4px; cursor: pointer; text-align: center; display: block; }
 .btn-dark-checkout:hover { background-color: var(--color-primary); }
 
-/* ==========================================
-   СТИЛИ СТРАНИЦЫ ОФОРМЛЕНИЯ ЗАКАЗА (CHECKOUT.HTML)
-   ========================================== */
+/* ОФОРМЛЕНИЕ ЗАКАЗА CHECKOUT.HTML */
 .checkout-page-wrapper { padding: 30px 0 80px; }
 
 .checkout-coral-banner {
@@ -770,9 +767,7 @@ img { max-width: 100%; display: block; object-fit: cover; }
     line-height: 1.4;
 }
 
-/* ==========================================
-   ВЫЕЗЖАЮЩАЯ БОКОВАЯ КОРЗИНА (SIDE-DRAWER CART FIX)
-   ========================================== */
+/* ВЫЕЗЖАЮЩАЯ БОКОВАЯ КОРЗИНА */
 .cart-overlay {
     position: fixed;
     top: 0;
@@ -877,7 +872,7 @@ img { max-width: 100%; display: block; object-fit: cover; }
 .cart-drawer__total { display: flex; align-items: center; justify-content: space-between; font-family: var(--font-heading); font-size: 0.95rem; text-transform: uppercase; }
 .cart-drawer__total strong { font-size: 1.3rem; color: var(--color-primary); }
 
-/* ИНТЕРАКТИВНЫЙ ВИДДЖЕТ ПОДДЕРЖКИ (SUPPORT CHAT WIDGET) */
+/* ВИДДЖЕТ ПОДДЕРЖКИ */
 .nks-support-widget {
     position: fixed;
     bottom: 24px;
