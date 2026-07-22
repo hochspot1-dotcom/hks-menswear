@@ -5,6 +5,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     initMiniCart();
     initFullCartPage();
+    initCheckoutPage();
     initHeroSlider();
     initCatalogFilters();
     initSearchModal();
@@ -13,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ==========================================
-   1. МОДУЛЬ МИНИ-КОРЗИНЫ И КНОПОК "В КОРЗИНУ"
+   1. МОДУЛЬ МИНИ-КОРЗИНЫ И БОКОВОГО ДРАВЕРА
    ========================================== */
 function initMiniCart() {
     let cart = JSON.parse(localStorage.getItem('hks_cart')) || [
@@ -63,11 +64,9 @@ function initMiniCart() {
         }
     }
 
-    // Клик по иконке корзины в шапке
     cartBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
-            // Если на странице cart.html — переходим на cart.html, иначе открываем боковую панель
-            if (window.location.pathname.includes('cart.html')) {
+            if (window.location.pathname.includes('cart.html') || window.location.pathname.includes('checkout.html')) {
                 return;
             }
             e.preventDefault();
@@ -112,7 +111,7 @@ function initMiniCart() {
                         </div>
                     </div>
                     <button class="cart-item__remove" data-id="${item.id}" aria-label="Удалить">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        ✕
                     </button>
                 `;
 
@@ -158,7 +157,6 @@ function initMiniCart() {
     }
 
     function setupAddToCartButtons() {
-        // Добавление из карточек товаров
         document.querySelectorAll('.product-card').forEach((card, index) => {
             const addBtn = card.querySelector('.btn');
             const imgEl = card.querySelector('.product-card__img');
@@ -181,7 +179,6 @@ function initMiniCart() {
             }
         });
 
-        // Добавление со страницы одного товара product.html
         const mainProductAddBtn = document.querySelector('.product-actions .btn--primary');
         if (mainProductAddBtn) {
             mainProductAddBtn.addEventListener('click', (e) => {
@@ -203,7 +200,6 @@ function initMiniCart() {
         }
     }
 
-    // Трансформация кнопки "В КОРЗИНЕ ✓" без всплытия панели
     function addToCart(product, buttonElement) {
         const existingItem = cart.find(item => item.id === product.id || item.title === product.title);
         if (existingItem) existingItem.quantity += product.quantity;
@@ -242,7 +238,7 @@ function initCartMarkup() {
                     <h3 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 900; text-transform: uppercase;">Корзина</h3>
                 </div>
                 <button class="cart-drawer__close" id="cart-close-btn" aria-label="Закрыть">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    ✕
                 </button>
             </div>
             <div class="cart-drawer__body" id="cart-drawer-items"></div>
@@ -251,7 +247,8 @@ function initCartMarkup() {
                     <span>Итого к оплате:</span>
                     <strong id="cart-total-price">0 руб</strong>
                 </div>
-                <a href="cart.html" class="btn btn--primary btn--full btn--large">Перейти к оформлению</a>
+                <a href="checkout.html" class="btn btn--primary btn--full btn--large">Оформить заказ</a>
+                <a href="cart.html" class="btn btn--secondary btn--full" style="font-size: 0.8rem;">Перейти в полную корзину →</a>
             </div>
         </aside>
     `;
@@ -260,7 +257,88 @@ function initCartMarkup() {
 }
 
 /* ==========================================
-   2. СТРАНИЦА КОРЗИНЫ (CART.HTML) ПО РЕФЕРЕНСУ
+   2. СТРАНИЦА ОФОРМЛЕНИЯ ЗАКАЗА (CHECKOUT.HTML СНИМКИ 1 И 2)
+   ========================================== */
+function initCheckoutPage() {
+    const coItemsCount = document.getElementById('co-items-count');
+    if (!coItemsCount) return;
+
+    let cart = JSON.parse(localStorage.getItem('hks_cart')) || [];
+    let shippingCost = 249;
+
+    const coItemsPrice = document.getElementById('co-items-price');
+    const coShippingPrice = document.getElementById('co-shipping-price');
+    const coDiscountPrice = document.getElementById('co-discount-price');
+    const coFinalTotal = document.getElementById('co-final-total');
+    const submitBtn = document.getElementById('final-submit-order-btn');
+    const shippingRadios = document.querySelectorAll('input[name="shipping-method"]');
+
+    function calculateCheckout() {
+        const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+        const itemsTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const finalSum = itemsTotal + shippingCost;
+
+        if (coItemsCount) coItemsCount.textContent = `${totalCount} товара(-ов)`;
+        if (coItemsPrice) coItemsPrice.textContent = `${formatPrice(itemsTotal)} руб`;
+        if (coShippingPrice) coShippingPrice.textContent = `${formatPrice(shippingCost)} руб`;
+        if (coFinalTotal) coFinalTotal.textContent = `${formatPrice(finalSum)} руб`;
+    }
+
+    shippingRadios.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            shippingCost = parseInt(e.target.value) || 0;
+            calculateCheckout();
+        });
+    });
+
+    if (submitBtn) {
+        submitBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            const firstName = document.getElementById('cust-first-name')?.value.trim();
+            const lastName = document.getElementById('cust-last-name')?.value.trim();
+            const phone = document.getElementById('cust-phone')?.value.trim();
+            const email = document.getElementById('cust-email')?.value.trim();
+            const street = document.getElementById('cust-address-street')?.value.trim();
+
+            if (!firstName || !phone || !email) {
+                return alert('Пожалуйста, заполните основные поля: Имя, Телефон и Email.');
+            }
+
+            try {
+                const res = await fetch('/api/order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        customer_name: `${firstName} ${lastName || ''}`.trim(),
+                        customer_email: email,
+                        customer_phone: phone,
+                        shipping_address: street || 'г. Москва',
+                        items: cart.map(i => ({ product_id: i.id, title: i.title, price: i.price, quantity: i.quantity }))
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    alert(`🎉 Заказ #${data.order_number} успешно подтвержден!\nМы отправили детали заказа на ваш Email: ${email}`);
+                    localStorage.removeItem('hks_cart');
+                    window.location.href = 'profile.html';
+                } else {
+                    alert(data.error || 'Ошибка при подтверждении заказа');
+                }
+            } catch (err) {
+                alert('Ошибка соединения с сервером');
+            }
+        });
+    }
+
+    function formatPrice(price) { return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+
+    calculateCheckout();
+}
+
+/* ==========================================
+   3. СТРАНИЦА КОРЗИНЫ (CART.HTML) ПО РЕФЕРЕНСУ
    ========================================== */
 function initFullCartPage() {
     const listContainer = document.getElementById('full-cart-items-list');
@@ -298,7 +376,6 @@ function initFullCartPage() {
     const clearCartBtn = document.getElementById('clear-cart-btn');
     const updateCartBtn = document.getElementById('update-cart-btn');
 
-    const dolyamiAmountEl = document.getElementById('dolyami-amount');
     const shippingFill = document.getElementById('shipping-progress-fill');
     const shippingTruck = document.getElementById('shipping-truck-icon');
     const shippingText = document.getElementById('shipping-progress-text');
@@ -368,10 +445,6 @@ function initFullCartPage() {
 
         if (selectedCountEl) selectedCountEl.textContent = checkedItems.length;
         if (selectAllCheckbox) selectAllCheckbox.checked = cart.length > 0 && cart.every(i => i.checked);
-
-        if (dolyamiAmountEl) {
-            dolyamiAmountEl.textContent = `${formatPrice(Math.round(finalPrice / 4))} ₽`;
-        }
 
         if (shippingFill && shippingTruck && shippingNeededEl) {
             const percent = Math.min(100, (totalItemsPrice / freeShippingThreshold) * 100);
@@ -469,35 +542,10 @@ function initFullCartPage() {
     }
 
     if (checkoutBtn) {
-        checkoutBtn.addEventListener('click', async () => {
+        checkoutBtn.addEventListener('click', () => {
             const checkedItems = cart.filter(i => i.checked);
             if (checkedItems.length === 0) return alert('Выберите хотя бы один товар для заказа');
-
-            const name = prompt('Введите ваше имя:', 'Алексей');
-            if (!name) return;
-            const phone = prompt('Введите номер телефона:', '+7 (999) 000-00-00');
-            if (!phone) return;
-
-            try {
-                const res = await fetch('/api/order', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        customer_name: name,
-                        customer_email: 'customer@example.com',
-                        customer_phone: phone,
-                        shipping_address: 'г. Москва, ул. Примерная, д. 10',
-                        items: checkedItems.map(item => ({ product_id: item.id, title: item.title, price: item.price, quantity: item.quantity }))
-                    })
-                });
-
-                const data = await res.json();
-                if (res.ok) {
-                    alert(`🎉 Заказ #${data.order_number} успешно оформлен!\nСумма: ${data.total_amount} руб`);
-                    cart = cart.filter(i => !i.checked);
-                    renderFullCart();
-                } else { alert('Ошибка оформления'); }
-            } catch (err) { alert('Ошибка соединения'); }
+            window.location.href = 'checkout.html';
         });
     }
 
@@ -507,7 +555,7 @@ function initFullCartPage() {
 }
 
 /* ==========================================
-   3. МОДАЛЬНЫЙ ИНТЕРАКТИВНЫЙ ПОИСК ПО КЛИКУ
+   4. МОДАЛЬНЫЙ ИНТЕРАКТИВНЫЙ ПОИСК ПО КЛИКУ
    ========================================== */
 function initSearchModal() {
     const toggleBtn = document.getElementById('search-toggle-btn');
@@ -530,7 +578,7 @@ function initSearchModal() {
 }
 
 /* ==========================================
-   4. ИНТЕРАКТИВНЫЕ ВЫПАДАЮЩИЕ МЕНЮ ФИЛЬТРОВ
+   5. ИНТЕРАКТИВНЫЕ ВЫПАДАЮЩИЕ МЕНЮ ФИЛЬТРОВ
    ========================================== */
 function initDropdownFilters() {
     const toggleBtns = document.querySelectorAll('.dropdown-toggle');
@@ -561,7 +609,7 @@ function initDropdownFilters() {
 }
 
 /* ==========================================
-   5. SEO: TITLE И META DESCRIPTION
+   6. SEO: TITLE И META DESCRIPTION
    ========================================== */
 function initDynamicProductSEO() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -582,7 +630,7 @@ function initDynamicProductSEO() {
 }
 
 /* ==========================================
-   6. СЛАЙДЕР
+   7. СЛАЙДЕР
    ========================================== */
 function initHeroSlider() {
     const sliderContainer = document.getElementById('hero-slider');
@@ -608,7 +656,7 @@ function initHeroSlider() {
 }
 
 /* ==========================================
-   7. ФИЛЬТРАЦИЯ
+   8. ФИЛЬТРАЦИЯ
    ========================================== */
 function initCatalogFilters() {
     const categoryLinks = document.querySelectorAll('.filter-link[data-category], .filter-pill-btn[data-category]');
