@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель управления (Admin) - HKS Store</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-page { padding: 40px 0 80px; }
+        .admin-card {
+            background-color: #ffffff;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow-sm);
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label {
+            font-family: var(--font-heading);
+            font-size: 0.78rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--color-text-muted);
+        }
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .admin-table th, .admin-table td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+        }
+        .admin-table th {
+            font-family: var(--font-heading);
+            font-size: 0.8rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            background-color: #f5f5f8;
+        }
+        .status-select-admin {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-family: var(--font-heading);
+            font-size: 0.8rem;
+            font-weight: 800;
+            border: 1.5px solid var(--color-primary);
+            color: var(--color-primary);
+            outline: none;
+            background-color: #ffffff;
+            cursor: pointer;
+        }
+        .price-edit-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .price-edit-group input {
+            width: 90px;
+            padding: 6px 10px;
+        }
+        .toast-msg {
+            padding: 12px 20px;
+            background-color: #10b981;
+            color: #ffffff;
+            border-radius: var(--radius-pill);
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            font-family: var(--font-heading);
+            font-size: 0.85rem;
+            font-weight: 800;
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ШАПКА АДМИНКИ -->
+    <header class="header">
+        <div class="container header__container">
+            <a href="index.html" class="logo">HKS <span style="font-size: 0.9rem; color: var(--color-text-muted);">| Admin Panel</span></a>
+            <div style="display: flex; gap: 12px;">
+                <a href="profile.html" class="btn btn--secondary" style="border-radius: 50px; padding: 6px 16px; font-size: 0.75rem;">Личный кабинет</a>
+                <a href="index.html" class="btn btn--secondary" style="border-radius: 50px; padding: 6px 16px; font-size: 0.75rem;">← На сайт</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="admin-page">
+        <div class="container">
+            <h1 class="page-title" style="margin-bottom: 24px;">Панель управления HKS Store</h1>
+
+            <!-- 1. УПРАВЛЕНИЕ СТАТУСАМИ ЗАКАЗОВ -->
+            <section class="admin-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2 style="font-size: 1.3rem;">🚚 Управление заказами и статусами (Принят → В сборке → Отправлен)</h2>
+                    <button id="reload-orders-btn" class="btn btn--secondary" style="border-radius: 50px; font-size: 0.75rem; padding: 6px 16px;">🔄 Обновить список</button>
+                </div>
+                <p style="color: var(--color-text-muted); font-size: 0.9rem; margin-bottom: 20px;">Изменение статуса заказа здесь сразу отображается в Личном кабинете покупателя.</p>
+
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Заказ</th>
+                                <th>Клиент</th>
+                                <th>Состав заказа</th>
+                                <th>Сумма</th>
+                                <th>Статус заказа (Изменить)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-orders-table-body">
+                            <!-- Загрузка из JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 2. ФОРМА ДОБАВЛЕНИЯ ТОВАРА -->
+            <section class="admin-card">
+                <h2 style="font-size: 1.3rem; margin-bottom: 20px;">➕ Добавить новый товар</h2>
+                <form id="add-product-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="prod-title">Название товара *</label>
+                            <input type="text" id="prod-title" class="input-field" placeholder="Напр. MINI PACK SUNSET" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="prod-price">Цена (руб) *</label>
+                            <input type="number" step="0.01" id="prod-price" class="input-field" placeholder="219" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="prod-old-price">Старая цена (руб)</label>
+                            <input type="number" step="0.01" id="prod-old-price" class="input-field" placeholder="250">
+                        </div>
+                        <div class="form-group">
+                            <label for="prod-sku">Артикул (SKU)</label>
+                            <input type="text" id="prod-sku" class="input-field" placeholder="NKS-S01">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn--primary">Сохранить товар</button>
+                </form>
+            </section>
+
+            <!-- 3. ТАБЛИЦА ТОВАРОВ И РЕДАКТИРОВАНИЕ ЦЕНЫ -->
+            <section class="admin-card">
+                <h2 style="font-size: 1.3rem; margin-bottom: 16px;">📦 Управление каталогом товаров</h2>
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Товар</th>
+                                <th>Артикул</th>
+                                <th>Текущая цена</th>
+                                <th>Быстрое изменение цены</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-products-table-body"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div id="toast" class="toast-msg"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const addForm = document.getElementById('add-product-form');
+            const productsTableBody = document.getElementById('admin-products-table-body');
+            const ordersTableBody = document.getElementById('admin-orders-table-body');
+            const reloadOrdersBtn = document.getElementById('reload-orders-btn');
+            const toast = document.getElementById('toast');
+
+            function showToast(msg) {
+                toast.textContent = msg;
+                toast.style.display = 'block';
+                setTimeout(() => { toast.style.display = 'none'; }, 3000);
+            }
+
+            // --- ЗАКАЗЫ И СТАТУСЫ ---
+            async function loadAdminOrders() {
+                ordersTableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #888;">Загрузка заказов...</td></tr>`;
+                try {
+                    const res = await fetch('/api/admin/orders');
+                    const orders = await res.json();
+                    renderOrdersTable(orders);
+                } catch (err) {
+                    ordersTableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">Ошибка загрузки заказов</td></tr>`;
+                }
+            }
+
+            function renderOrdersTable(orders) {
+                ordersTableBody.innerHTML = '';
+                if (!orders || orders.length === 0) {
+                    ordersTableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #888;">Заказов нет</td></tr>`;
+                    return;
+                }
+
+                orders.forEach(order => {
+                    const tr = document.createElement('tr');
+                    const itemsSummary = (order.items || []).map(i => `${i.product_name} (${i.quantity} шт)`).join(', ') || 'Позиции заказа';
+
+                    tr.innerHTML = `
+                        <td>
+                            <strong>#${order.order_number || order.id}</strong><br>
+                            <small style="color: #888;">${new Date(order.created_at || Date.now()).toLocaleDateString('ru-RU')}</small>
+                        </td>
+                        <td>
+                            <strong>${order.customer_name}</strong><br>
+                            <small style="color: #666;">${order.customer_email}</small><br>
+                            <small style="color: #666;">${order.customer_phone}</small>
+                        </td>
+                        <td style="font-size: 0.85rem; max-width: 250px;">${itemsSummary}</td>
+                        <td><strong style="color: var(--color-primary); font-size: 1.1rem;">${order.total_amount} руб</strong></td>
+                        <td>
+                            <select class="status-select-admin" data-id="${order.id}">
+                                <option value="Принят" ${order.status === 'Принят' ? 'selected' : ''}>Принят</option>
+                                <option value="В сборке" ${order.status === 'В сборке' ? 'selected' : ''}>В сборке</option>
+                                <option value="Отправлен" ${order.status === 'Отправлен' ? 'selected' : ''}>Отправлен</option>
+                                <option value="Доставлен" ${order.status === 'Доставлен' ? 'selected' : ''}>Доставлен</option>
+                                <option value="Отменен" ${order.status === 'Отменен' ? 'selected' : ''}>Отменен</option>
+                            </select>
+                        </td>
+                    `;
+                    ordersTableBody.appendChild(tr);
+                });
+
+                // Навешивание события изменения статуса
+                document.querySelectorAll('.status-select-admin').forEach(select => {
+                    select.addEventListener('change', async (e) => {
+                        const orderId = select.dataset.id;
+                        const newStatus = select.value;
+
+                        try {
+                            const res = await fetch(`/api/admin/orders/${orderId}/status`, {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ status: newStatus })
+                            });
+
+                            if (res.ok) {
+                                showToast(`🚚 Статус заказа #${orderId} изменен на: ${newStatus}`);
+                            } else {
+                                alert('Ошибка изменения статуса');
+                            }
+                        } catch (err) {
+                            alert('Ошибка соединения с сервером');
+                        }
+                    });
+                });
+            }
+
+            reloadOrdersBtn.addEventListener('click', loadAdminOrders);
+
+            // --- ТОВАРЫ ---
+            async function loadAdminProducts() {
+                try {
+                    const res = await fetch('/api/admin/products');
+                    const products = await res.json();
+                    renderProductsTable(products);
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+
+            function renderProductsTable(products) {
+                productsTableBody.innerHTML = '';
+                products.forEach(prod => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><strong>#${prod.id}</strong></td>
+                        <td><strong>${prod.title}</strong></td>
+                        <td><code>${prod.sku || '-'}</code></td>
+                        <td><strong style="color: var(--color-primary); font-size: 1.1rem;">${prod.price} руб</strong></td>
+                        <td>
+                            <form class="price-edit-form price-edit-group" data-id="${prod.id}">
+                                <input type="number" step="0.01" value="${prod.price}" class="input-field new-price-input" required>
+                                <button type="submit" class="btn btn--secondary" style="padding: 6px 12px; font-size: 0.75rem; border-radius: 20px;">Обновить цену</button>
+                            </form>
+                        </td>
+                        <td>
+                            <button class="btn delete-btn" data-id="${prod.id}" style="background-color: #fee2e2; color: #ef4444; padding: 6px 14px; font-size: 0.75rem; border-radius: 20px;">Удалить</button>
+                        </td>
+                    `;
+                    productsTableBody.appendChild(tr);
+                });
+
+                document.querySelectorAll('.price-edit-form').forEach(form => {
+                    form.addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        const id = form.dataset.id;
+                        const newPrice = form.querySelector('.new-price-input').value;
+                        const res = await fetch(`/api/admin/products/${id}/price`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ price: newPrice })
+                        });
+                        if (res.ok) {
+                            showToast('✅ Цена обновлена');
+                            loadAdminProducts();
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        const id = btn.dataset.id;
+                        if (confirm('Удалить товар?')) {
+                            const res = await fetch(`/api/admin/products/${id}`, { method: 'DELETE' });
+                            if (res.ok) {
+                                showToast('🗑️ Товар удален');
+                                loadAdminProducts();
+                            }
+                        }
+                    });
+                });
+            }
+
+            addForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const newProduct = {
+                    title: document.getElementById('prod-title').value,
+                    price: parseFloat(document.getElementById('prod-price').value),
+                    old_price: document.getElementById('prod-old-price').value ? parseFloat(document.getElementById('prod-old-price').value) : null,
+                    sku: document.getElementById('prod-sku').value
+                };
+
+                const res = await fetch('/api/admin/products', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newProduct)
+                });
+
+                if (res.ok) {
+                    showToast('🎉 Товар добавлен!');
+                    addForm.reset();
+                    loadAdminProducts();
+                }
+            });
+
+            loadAdminOrders();
+            loadAdminProducts();
+        });
+    </script>
+</body>
+</html>
