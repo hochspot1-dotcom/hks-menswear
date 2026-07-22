@@ -222,7 +222,7 @@ function initCatalogFilters() {
 }
 
 /* ==========================================
-   6. МИНИ-КОРЗИНА (DRAWER CART) & ОФОРМЛЕНИЕ ЗАКАЗА
+   6. МИНИ-КОРЗИНА (DRAWER CART) С УЛУЧШЕННОЙ АНИМАЦИЕЙ КНОПКИ
    ========================================== */
 function initMiniCart() {
     let cart = [
@@ -230,12 +230,14 @@ function initMiniCart() {
             id: 1,
             title: "OVERSIZE HOODIE URBAN BLACK",
             price: 4990,
+            image: "./images/oversize_hoodie_black.jpg",
             quantity: 1
         },
         {
             id: 2,
             title: "CARGO PANTS TACTICAL KHAKI",
             price: 5490,
+            image: "./images/cargo_pants_khaki.jpg",
             quantity: 1
         }
     ];
@@ -262,6 +264,7 @@ function initMiniCart() {
         document.body.style.overflow = '';
     }
 
+    // Открытие корзины ТОЛЬКО при клике на иконку корзины в шапке
     cartBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -280,8 +283,11 @@ function initMiniCart() {
 
         if (cart.length === 0) {
             cartItemsContainer.innerHTML = `
-                <div class="cart-empty" style="text-align: center; padding: 40px; color: var(--color-text-muted);">
-                    <p>Ваша корзина пока пуста</p>
+                <div class="cart-empty" style="text-align: center; padding: 48px 20px; color: var(--color-text-muted);">
+                    <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-bottom: 12px; opacity: 0.5;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                    </svg>
+                    <p style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 800;">Ваша корзина пока пуста</p>
                 </div>
             `;
         } else {
@@ -289,12 +295,12 @@ function initMiniCart() {
                 totalCount += item.quantity;
                 totalPrice += item.price * item.quantity;
 
+                const itemImg = item.image || './images/oversize_hoodie_black.jpg';
+
                 const itemElement = document.createElement('div');
                 itemElement.className = 'cart-item';
                 itemElement.innerHTML = `
-                    <div class="cart-item__img-placeholder">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                    </div>
+                    <img src="${itemImg}" alt="${item.title}" class="cart-item__img">
                     <div class="cart-item__details">
                         <h4 class="cart-item__title">${item.title}</h4>
                         <div class="cart-item__price">${formatPrice(item.price)} руб</div>
@@ -350,8 +356,11 @@ function initMiniCart() {
     }
 
     function setupAddToCartButtons() {
+        // Добавление из карточек в сетке
         document.querySelectorAll('.product-card').forEach((card, index) => {
             const addBtn = card.querySelector('.btn');
+            const imgEl = card.querySelector('.product-card__img');
+
             if (addBtn) {
                 addBtn.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -362,13 +371,15 @@ function initMiniCart() {
                         id: index + 10,
                         title: titleEl ? titleEl.textContent.trim() : 'Мужская одежда',
                         price: priceEl ? parsePrice(priceEl.textContent) : 4990,
+                        image: imgEl ? imgEl.getAttribute('src') : './images/oversize_hoodie_black.jpg',
                         quantity: 1
                     };
-                    addToCart(product);
+                    addToCart(product, addBtn);
                 });
             }
         });
 
+        // Добавление с главной страницы товара
         const mainProductAddBtn = document.querySelector('.product-actions .btn--primary');
         if (mainProductAddBtn) {
             mainProductAddBtn.addEventListener('click', (e) => {
@@ -382,12 +393,14 @@ function initMiniCart() {
                     id: 1,
                     title: titleEl ? titleEl.textContent.trim() : 'OVERSIZE HOODIE URBAN BLACK',
                     price: priceEl ? parsePrice(priceEl.textContent) : 4990,
+                    image: './images/oversize_hoodie_black.jpg',
                     quantity: qty
                 };
-                addToCart(product);
+                addToCart(product, mainProductAddBtn);
             });
         }
 
+        // Оформление заказа
         const checkoutBtn = document.querySelector('.cart-drawer__footer .btn');
         if (checkoutBtn) {
             checkoutBtn.addEventListener('click', async (e) => {
@@ -424,12 +437,25 @@ function initMiniCart() {
         }
     }
 
-    function addToCart(product) {
+    // ТРАНСФОРМАЦИЯ КНОПКИ БЕЗ АВТОМАТИЧЕСКОГО ВСКРЫТИЯ КОРЗИНЫ
+    function addToCart(product, buttonElement) {
         const existingItem = cart.find(item => item.id === product.id || item.title === product.title);
         if (existingItem) existingItem.quantity += product.quantity;
         else cart.push({ ...product });
+
         renderCart();
-        openCart();
+
+        // Анимация кнопки "В КОРЗИНЕ ✓" без всплытия панели
+        if (buttonElement) {
+            const originalText = buttonElement.textContent;
+            buttonElement.classList.add('added-to-cart');
+            buttonElement.textContent = 'В КОРЗИНЕ ✓';
+
+            setTimeout(() => {
+                buttonElement.classList.remove('added-to-cart');
+                buttonElement.textContent = originalText;
+            }, 2500);
+        }
     }
 
     function formatPrice(price) { return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
@@ -448,7 +474,7 @@ function initCartMarkup() {
             <div class="cart-drawer__header">
                 <div class="cart-drawer__title">
                     <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
-                    <h3>Корзина</h3>
+                    <h3 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 900; text-transform: uppercase;">Корзина</h3>
                 </div>
                 <button class="cart-drawer__close" id="cart-close-btn" aria-label="Закрыть">
                     <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
