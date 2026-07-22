@@ -2,21 +2,21 @@
    ИНТЕРАКТИВНЫЙ ИНТЕРНЕТ-МАГАЗИН МУЖСКОЙ ОДЕЖДЫ (SCRIPT.JS)
    ========================================== */
 
-// ГЛОБАЛЬНЫЕ ФУНКЦИИ СИНХРОНИЗАЦИИ КОРЗИНЫ В LOCALSTORAGE
+// 1. ГЛОБАЛЬНОЕ ХРАНИЛИЩЕ КОРЗИНЫ В LOCALSTORAGE
 function getCartFromStorage() {
     try {
         const stored = localStorage.getItem('hks_cart');
-        if (stored) {
+        if (stored !== null) {
             return JSON.parse(stored);
         }
     } catch (e) {}
     
-    // Начальный пример товара, если корзина совсем пустая при первом входе
+    // Если пользователь зашел в первый раз
     return [
         {
-            id: 1,
+            id: 101,
             title: "OVERSIZE HOODIE URBAN BLACK",
-            category: "STREETWEAR",
+            category: "ХУДИ & СВИТШОТЫ",
             price: 4990,
             image: "./images/oversize_hoodie_black.jpg",
             quantity: 1,
@@ -28,19 +28,30 @@ function getCartFromStorage() {
 function saveCartToStorage(cartArray) {
     try {
         localStorage.setItem('hks_cart', JSON.stringify(cartArray));
-        updateAllCartBadges(cartArray);
     } catch (e) {}
+    updateAllCartBadges(cartArray);
 }
 
 function updateAllCartBadges(cartArray) {
-    const totalCount = (cartArray || getCartFromStorage()).reduce((sum, item) => sum + item.quantity, 0);
+    const list = cartArray || getCartFromStorage();
+    const totalCount = list.reduce((sum, item) => sum + (item.quantity || 1), 0);
     document.querySelectorAll('.cart-btn__badge').forEach(badge => {
         badge.textContent = totalCount;
     });
 }
 
+// Слушатель событий между вкладками браузера
+window.addEventListener('storage', (e) => {
+    if (e.key === 'hks_cart') {
+        updateAllCartBadges();
+        if (typeof renderFullCartGlobal === 'function') renderFullCartGlobal();
+        if (typeof renderMiniCartGlobal === 'function') renderMiniCartGlobal();
+    }
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     updateAllCartBadges();
+    initGlobalCartEvents();
     initMiniCart();
     initFullCartPage();
     initCheckoutPage();
@@ -53,7 +64,94 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ==========================================
-   1. МОДУЛЬ МИНИ-КОРЗИНЫ И СИНХРОНИЗАЦИИ
+   ГЛОБАЛЬНЫЙ ДЕЛЕГАТ КЛИКОВ "В КОРЗИНУ" (100% НАДЕЖНОСТЬ)
+   ========================================== */
+function initGlobalCartEvents() {
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.btn');
+        if (!btn) return;
+
+        // Проверяем, является ли кнопка добавлением в корзину
+        const btnText = btn.textContent.trim().toLowerCase();
+        if (btnText.includes('в корзину') || btnText.includes('добавить в корзину')) {
+            e.preventDefault();
+
+            // Ищем родительскую карточку или страницу товара
+            const card = btn.closest('.product-card') || btn.closest('.product-page') || btn.closest('.product-details');
+            
+            let title = 'OVERSIZE HOODIE URBAN BLACK';
+            let category = 'МУЖСКАЯ ОДЕЖДА';
+            let price = 4990;
+            let image = './images/oversize_hoodie_black.jpg';
+            let qty = 1;
+
+            if (card) {
+                const titleEl = card.querySelector('.product-card__title') || card.querySelector('.product-details__title');
+                if (titleEl) title = titleEl.textContent.trim();
+
+                const catEl = card.querySelector('.product-card__category');
+                if (catEl) category = catEl.textContent.trim();
+
+                const priceEl = card.querySelector('.price-current') || card.querySelector('.price-current--large');
+                if (priceEl) price = parsePrice(priceEl.textContent);
+
+                const imgEl = card.querySelector('.product-card__img') || card.querySelector('.product-gallery__main img');
+                if (imgEl) image = imgEl.getAttribute('src');
+
+                const qtyInput = card.querySelector('.quantity-input');
+                if (qtyInput) qty = parseInt(qtyInput.value) || 1;
+            }
+
+            const product = {
+                id: Date.now(),
+                title,
+                category,
+                price,
+                image,
+                quantity: qty,
+                checked: true
+            };
+
+            // Сохраняем в корзину
+            let cart = getCartFromStorage();
+            const existing = cart.find(i => i.title === product.title);
+            if (existing) {
+                existing.quantity += product.quantity;
+                existing.checked = true;
+            } else {
+                cart.push(product);
+            }
+
+            saveCartToStorage(cart);
+
+            // Анимация кнопки
+            const oldText = btn.textContent;
+            btn.classList.add('added-to-cart');
+            btn.textContent = 'В КОРЗИНЕ ✓';
+            setTimeout(() => {
+                btn.classList.remove('added-to-cart');
+                btn.textContent = oldText;
+            }, 2500);
+
+            // Обновляем визуал боковой корзины если открыта
+            if (typeof renderMiniCartGlobal === 'function') renderMiniCartGlobal();
+        }
+    });
+}
+
+function parsePrice(str) {
+    return parseInt(str.replace(/[^\d]/g, '')) || 4990;
+}
+
+function formatPrice(price) {
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+}
+
+let renderMiniCartGlobal = null;
+let renderFullCartGlobal = null;
+
+/* ==========================================
+   2. БОКОВАЯ ВЫЕЗЖАЮЩАЯ КОРЗИНА
    ========================================== */
 function initMiniCart() {
     initCartMarkup();
@@ -122,12 +220,12 @@ function initMiniCart() {
                         <h4 class="cart-item__title">${item.title}</h4>
                         <div class="cart-item__price">${formatPrice(item.price)} руб</div>
                         <div class="cart-item__controls">
-                            <button class="qty-btn minus" data-id="${item.id}">-</button>
+                            <button class="qty-btn minus" data-title="${item.title}">-</button>
                             <span class="qty-val">${item.quantity}</span>
-                            <button class="qty-btn plus" data-id="${item.id}">+</button>
+                            <button class="qty-btn plus" data-title="${item.title}">+</button>
                         </div>
                     </div>
-                    <button class="cart-item__remove" data-id="${item.id}" aria-label="Удалить">✕</button>
+                    <button class="cart-item__remove" data-title="${item.title}">✕</button>
                 `;
                 cartItemsContainer.appendChild(itemElement);
             });
@@ -135,15 +233,17 @@ function initMiniCart() {
 
         if (cartTotalElement) cartTotalElement.textContent = `${formatPrice(totalPrice)} руб`;
         updateAllCartBadges(cart);
-        addCartItemsEventListeners();
+        attachMiniCartEvents();
     }
 
-    function addCartItemsEventListeners() {
+    renderMiniCartGlobal = renderCart;
+
+    function attachMiniCartEvents() {
         document.querySelectorAll('.cart-item .qty-btn.plus').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const id = parseInt(e.currentTarget.dataset.id);
+                const title = e.currentTarget.dataset.title;
                 const cart = getCartFromStorage();
-                const item = cart.find(i => i.id === id);
+                const item = cart.find(i => i.title === title);
                 if (item) {
                     item.quantity++;
                     saveCartToStorage(cart);
@@ -154,12 +254,12 @@ function initMiniCart() {
 
         document.querySelectorAll('.cart-item .qty-btn.minus').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const id = parseInt(e.currentTarget.dataset.id);
+                const title = e.currentTarget.dataset.title;
                 let cart = getCartFromStorage();
-                const item = cart.find(i => i.id === id);
+                const item = cart.find(i => i.title === title);
                 if (item) {
                     if (item.quantity > 1) item.quantity--;
-                    else cart = cart.filter(i => i.id !== id);
+                    else cart = cart.filter(i => i.title !== title);
                     saveCartToStorage(cart);
                     renderCart();
                 }
@@ -168,94 +268,15 @@ function initMiniCart() {
 
         document.querySelectorAll('.cart-item__remove').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const id = parseInt(e.currentTarget.dataset.id);
-                let cart = getCartFromStorage().filter(i => i.id !== id);
+                const title = e.currentTarget.dataset.title;
+                let cart = getCartFromStorage().filter(i => i.title !== title);
                 saveCartToStorage(cart);
                 renderCart();
             });
         });
     }
 
-    function setupAddToCartButtons() {
-        document.querySelectorAll('.product-card').forEach((card, index) => {
-            const addBtn = card.querySelector('.btn');
-            const imgEl = card.querySelector('.product-card__img');
-
-            if (addBtn) {
-                addBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const titleEl = card.querySelector('.product-card__title');
-                    const priceEl = card.querySelector('.price-current');
-                    const categoryEl = card.querySelector('.product-card__category');
-
-                    const product = {
-                        id: index + 10,
-                        title: titleEl ? titleEl.textContent.trim() : 'Мужская одежда',
-                        category: categoryEl ? categoryEl.textContent.trim() : 'STREETWEAR',
-                        price: priceEl ? parsePrice(priceEl.textContent) : 4990,
-                        image: imgEl ? imgEl.getAttribute('src') : './images/oversize_hoodie_black.jpg',
-                        quantity: 1,
-                        checked: true
-                    };
-                    addToCart(product, addBtn);
-                });
-            }
-        });
-
-        const mainProductAddBtn = document.querySelector('.product-actions .btn--primary');
-        if (mainProductAddBtn) {
-            mainProductAddBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                const titleEl = document.querySelector('.product-details__title');
-                const priceEl = document.querySelector('.price-current--large');
-                const qtyInput = document.querySelector('.quantity-input');
-                const qty = qtyInput ? parseInt(qtyInput.value) || 1 : 1;
-
-                const product = {
-                    id: 1,
-                    title: titleEl ? titleEl.textContent.trim() : 'OVERSIZE HOODIE URBAN BLACK',
-                    category: 'ХУДИ & СВИТШОТЫ',
-                    price: priceEl ? parsePrice(priceEl.textContent) : 4990,
-                    image: './images/oversize_hoodie_black.jpg',
-                    quantity: qty,
-                    checked: true
-                };
-                addToCart(product, mainProductAddBtn);
-            });
-        }
-    }
-
-    function addToCart(product, buttonElement) {
-        let cart = getCartFromStorage();
-        const existingItem = cart.find(item => item.id === product.id || item.title === product.title);
-        
-        if (existingItem) {
-            existingItem.quantity += product.quantity;
-            existingItem.checked = true;
-        } else {
-            cart.push({ ...product, checked: true });
-        }
-
-        saveCartToStorage(cart);
-        renderCart();
-
-        if (buttonElement) {
-            const originalText = buttonElement.textContent;
-            buttonElement.classList.add('added-to-cart');
-            buttonElement.textContent = 'В КОРЗИНЕ ✓';
-
-            setTimeout(() => {
-                buttonElement.classList.remove('added-to-cart');
-                buttonElement.textContent = originalText;
-            }, 2500);
-        }
-    }
-
-    function formatPrice(price) { return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
-    function parsePrice(priceStr) { return parseInt(priceStr.replace(/[^\d]/g, '')) || 0; }
-
     renderCart();
-    setupAddToCartButtons();
 }
 
 function initCartMarkup() {
@@ -266,7 +287,7 @@ function initCartMarkup() {
         <aside class="cart-drawer" id="cart-drawer">
             <div class="cart-drawer__header">
                 <div class="cart-drawer__title">
-                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
+                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
                     <h3 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 900; text-transform: uppercase;">Корзина</h3>
                 </div>
                 <button class="cart-drawer__close" id="cart-close-btn" aria-label="Закрыть">✕</button>
@@ -287,14 +308,11 @@ function initCartMarkup() {
 }
 
 /* ==========================================
-   2. ПОЛНАЯ СТРАНИЦА КОРЗИНЫ (CART.HTML)
+   3. ПОЛНАЯ СТРАНИЦА КОРЗИНЫ (CART.HTML)
    ========================================== */
 function initFullCartPage() {
     const listContainer = document.getElementById('full-cart-items-list');
     if (!listContainer) return;
-
-    let cart = getCartFromStorage();
-    cart.forEach(i => { if (i.checked === undefined) i.checked = true; });
 
     let discountAmount = 0;
     const freeShippingThreshold = 5000;
@@ -320,14 +338,14 @@ function initFullCartPage() {
     const checkoutBtn = document.getElementById('cart-checkout-btn');
 
     function renderFullCart() {
-        cart = getCartFromStorage();
+        const cart = getCartFromStorage();
         listContainer.innerHTML = '';
 
         if (cart.length === 0) {
             listContainer.innerHTML = `
                 <div style="text-align: center; padding: 48px 20px; color: var(--color-text-muted);">
-                    <p style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 900;">ВАША КОРЗИНА ПУСТА</p>
-                    <a href="catalog.html" class="btn btn--primary" style="margin-top: 16px;">Перейти в каталог</a>
+                    <p style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 900; margin-bottom: 12px;">ВАША КОРЗИНА ПУСТА</p>
+                    <a href="catalog.html" class="btn btn--primary">Перейти в каталог</a>
                 </div>
             `;
         } else {
@@ -358,12 +376,14 @@ function initFullCartPage() {
             });
         }
 
-        saveCartToStorage(cart);
         updateCalculations();
         attachEvents();
     }
 
+    renderFullCartGlobal = renderFullCart;
+
     function updateCalculations() {
+        const cart = getCartFromStorage();
         const checkedItems = cart.filter(i => i.checked !== false);
         const totalItemsCount = checkedItems.reduce((sum, i) => sum + i.quantity, 0);
         const totalItemsPrice = checkedItems.reduce((sum, i) => sum + (i.price * i.quantity), 0);
@@ -395,7 +415,8 @@ function initFullCartPage() {
         document.querySelectorAll('.item-checkbox').forEach(box => {
             box.addEventListener('change', (e) => {
                 const idx = parseInt(e.target.dataset.index);
-                cart[idx].checked = e.target.checked;
+                const cart = getCartFromStorage();
+                if (cart[idx]) cart[idx].checked = e.target.checked;
                 saveCartToStorage(cart);
                 updateCalculations();
             });
@@ -404,7 +425,8 @@ function initFullCartPage() {
         document.querySelectorAll('.full-qty-btn.plus').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const idx = parseInt(e.target.dataset.index);
-                cart[idx].quantity++;
+                const cart = getCartFromStorage();
+                if (cart[idx]) cart[idx].quantity++;
                 saveCartToStorage(cart);
                 renderFullCart();
             });
@@ -413,10 +435,10 @@ function initFullCartPage() {
         document.querySelectorAll('.full-qty-btn.minus').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const idx = parseInt(e.target.dataset.index);
-                if (cart[idx].quantity > 1) {
-                    cart[idx].quantity--;
-                } else {
-                    cart.splice(idx, 1);
+                let cart = getCartFromStorage();
+                if (cart[idx]) {
+                    if (cart[idx].quantity > 1) cart[idx].quantity--;
+                    else cart.splice(idx, 1);
                 }
                 saveCartToStorage(cart);
                 renderFullCart();
@@ -426,6 +448,7 @@ function initFullCartPage() {
         document.querySelectorAll('.delete-item-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const idx = parseInt(e.target.dataset.index);
+                let cart = getCartFromStorage();
                 cart.splice(idx, 1);
                 saveCartToStorage(cart);
                 renderFullCart();
@@ -435,6 +458,7 @@ function initFullCartPage() {
 
     if (selectAllCheckbox) {
         selectAllCheckbox.addEventListener('change', (e) => {
+            const cart = getCartFromStorage();
             cart.forEach(i => i.checked = e.target.checked);
             saveCartToStorage(cart);
             renderFullCart();
@@ -443,7 +467,7 @@ function initFullCartPage() {
 
     if (deleteSelectedBtn) {
         deleteSelectedBtn.addEventListener('click', () => {
-            cart = cart.filter(i => !i.checked);
+            let cart = getCartFromStorage().filter(i => i.checked === false);
             saveCartToStorage(cart);
             renderFullCart();
         });
@@ -451,8 +475,7 @@ function initFullCartPage() {
 
     if (clearCartBtn) {
         clearCartBtn.addEventListener('click', () => {
-            cart = [];
-            saveCartToStorage(cart);
+            saveCartToStorage([]);
             renderFullCart();
         });
     }
@@ -476,19 +499,18 @@ function initFullCartPage() {
 
     if (checkoutBtn) {
         checkoutBtn.addEventListener('click', () => {
+            const cart = getCartFromStorage();
             const checkedItems = cart.filter(i => i.checked !== false);
             if (checkedItems.length === 0) return alert('Выберите хотя бы один товар для заказа');
             window.location.href = 'checkout.html';
         });
     }
 
-    function formatPrice(price) { return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
-
     renderFullCart();
 }
 
 /* ==========================================
-   3. ОФОРМЛЕНИЕ ЗАКАЗА (CHECKOUT.HTML)
+   4. ОФОРМЛЕНИЕ ЗАКАЗА (CHECKOUT.HTML)
    ========================================== */
 function initCheckoutPage() {
     const coItemsCount = document.getElementById('co-items-count');
@@ -565,13 +587,11 @@ function initCheckoutPage() {
         });
     }
 
-    function formatPrice(price) { return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
-
     calculateCheckout();
 }
 
 /* ==========================================
-   4. ИНТЕРАКТИВНЫЙ ВИДДЖЕТ ПОДДЕРЖКИ (SUPPORT CHAT WIDGET)
+   5. ВИДДЖЕТ ПОДДЕРЖКИ
    ========================================== */
 function initSupportWidget() {
     if (document.getElementById('nks-support-root')) return;
@@ -629,9 +649,6 @@ function initSupportWidget() {
     }
 }
 
-/* ==========================================
-   5. ВСПОМОГАТЕЛЬНЫЕ МОДУЛИ ПОИСКА И ФИЛЬТРОВ
-   ========================================== */
 function initSearchModal() {
     const toggleBtn = document.getElementById('search-toggle-btn');
     const modalOverlay = document.getElementById('search-modal');
