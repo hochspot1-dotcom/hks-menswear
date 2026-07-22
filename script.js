@@ -39,7 +39,7 @@ function updateAllCartBadges(cartArray) {
     });
 }
 
-// Слушатель событий между вкладками браузера
+// Синхронизация между вкладками
 window.addEventListener('storage', (e) => {
     if (e.key === 'hks_cart') {
         updateAllCartBadges();
@@ -50,6 +50,7 @@ window.addEventListener('storage', (e) => {
 
 document.addEventListener('DOMContentLoaded', () => {
     updateAllCartBadges();
+    initMobileNav();
     initGlobalCartEvents();
     initMiniCart();
     initFullCartPage();
@@ -63,15 +64,76 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ==========================================
-   ГЛОБАЛЬНЫЙ ДЕЛЕГАТ КЛИКОВ "В КОРЗИНУ" (ПК + МОБИЛЬНЫЕ)
+   МОБИЛЬНОЕ БУРГЕР-МЕНЮ
+   ========================================== */
+function initMobileNav() {
+    let burger = document.getElementById('burger-menu-btn');
+    let drawer = document.getElementById('mobile-nav-drawer');
+
+    if (!burger) {
+        // Создаем кнопку бургера на мобильных устройствах если ее нет
+        const headerContainer = document.querySelector('.header__container');
+        if (headerContainer) {
+            const btn = document.createElement('button');
+            btn.className = 'burger-btn';
+            btn.id = 'burger-menu-btn';
+            btn.setAttribute('aria-label', 'Меню');
+            btn.innerHTML = '<span></span><span></span><span></span>';
+            headerContainer.insertBefore(btn, headerContainer.firstChild);
+            burger = btn;
+        }
+    }
+
+    if (!drawer) {
+        const navDrawer = document.createElement('aside');
+        navDrawer.className = 'mobile-nav-drawer';
+        navDrawer.id = 'mobile-nav-drawer';
+        navDrawer.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="logo">HKS <span class="logo__accent">MAN</span></div>
+                <button id="mobile-nav-close" style="background: none; border: none; font-size: 1.4rem; cursor: pointer;">✕</button>
+            </div>
+            <a href="index.html">Главная</a>
+            <a href="catalog.html">Каталог одежды</a>
+            <a href="catalog.html?cat=hoodie">Худи & Свитшоты</a>
+            <a href="catalog.html?cat=tshirt">Футболки</a>
+            <a href="catalog.html?cat=pants">Брюки & Карго</a>
+            <a href="cart.html">Корзина</a>
+            <a href="profile.html">Личный кабинет</a>
+        `;
+        document.body.appendChild(navDrawer);
+        drawer = navDrawer;
+    }
+
+    const closeBtn = document.getElementById('mobile-nav-close');
+
+    if (burger && drawer) {
+        burger.addEventListener('click', () => drawer.classList.add('active'));
+        if (closeBtn) closeBtn.addEventListener('click', () => drawer.classList.remove('active'));
+    }
+}
+
+/* ==========================================
+   ГЛОБАЛЬНЫЙ ДЕЛЕГАТ КЛИКОВ "В КОРЗИНУ" (ИСПРАВЛЕНА НАВИГАЦИЯ!)
    ========================================== */
 function initGlobalCartEvents() {
     function handleAddToCart(btn, e) {
         if (!btn) return;
+
+        // Если это ссылка перехода на другую страницу (.html) — пропускаем и даем ссылке сработать!
+        if (btn.tagName === 'A' || btn.hasAttribute('href')) {
+            const href = btn.getAttribute('href') || '';
+            if (href.includes('.html')) {
+                return; // Навигация срабатывает штатно!
+            }
+        }
+
         const btnText = btn.textContent.trim().toLowerCase();
         
-        // Срабатывает на любую кнопку со словами "в корзину"
-        if (btnText.includes('корзин') || btn.classList.contains('add-to-cart-trigger')) {
+        // Перехватываем ТОЛЬКО реальные кнопки добавления товара ("в корзину")
+        const isAddBtn = (btnText === 'в корзину' || btnText === 'добавить в корзину');
+
+        if (isAddBtn && !btnText.includes('перейти')) {
             if (e) e.preventDefault();
 
             // Ищем карточку товара или страницу товара
@@ -110,7 +172,6 @@ function initGlobalCartEvents() {
                 checked: true
             };
 
-            // Сохраняем в корзину
             let cart = getCartFromStorage();
             const existing = cart.find(i => i.title === product.title);
             if (existing) {
@@ -131,33 +192,19 @@ function initGlobalCartEvents() {
                 btn.textContent = oldText;
             }, 2500);
 
-            // Обновляем боковую и полную корзину
             if (typeof renderMiniCartGlobal === 'function') renderMiniCartGlobal();
             if (typeof renderFullCartGlobal === 'function') renderFullCartGlobal();
         }
     }
 
-    // Слушатель кликов мыши на ПК
     document.addEventListener('click', (e) => {
         const btn = e.target.closest('.btn') || e.target.closest('button');
         if (btn) handleAddToCart(btn, e);
     });
-
-    // Прямая привязка ко всем кнопкам на случай особенностей браузеров ПК
-    document.querySelectorAll('.btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            handleAddToCart(btn, e);
-        });
-    });
 }
 
-function parsePrice(str) {
-    return parseInt(str.replace(/[^\d]/g, '')) || 4990;
-}
-
-function formatPrice(price) {
-    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-}
+function parsePrice(str) { return parseInt(str.replace(/[^\d]/g, '')) || 4990; }
+function formatPrice(price) { return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
 
 let renderMiniCartGlobal = null;
 let renderFullCartGlobal = null;
