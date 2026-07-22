@@ -71,7 +71,6 @@ function initMobileNav() {
     let drawer = document.getElementById('mobile-nav-drawer');
 
     if (!burger) {
-        // Создаем кнопку бургера на мобильных устройствах если ее нет
         const headerContainer = document.querySelector('.header__container');
         if (headerContainer) {
             const btn = document.createElement('button');
@@ -114,29 +113,25 @@ function initMobileNav() {
 }
 
 /* ==========================================
-   ГЛОБАЛЬНЫЙ ДЕЛЕГАТ КЛИКОВ "В КОРЗИНУ" (ИСПРАВЛЕНА НАВИГАЦИЯ!)
+   ГЛОБАЛЬНЫЙ ДЕЛЕГАТ КЛИКОВ "В КОРЗИНУ"
    ========================================== */
 function initGlobalCartEvents() {
     function handleAddToCart(btn, e) {
         if (!btn) return;
 
-        // Если это ссылка перехода на другую страницу (.html) — пропускаем и даем ссылке сработать!
         if (btn.tagName === 'A' || btn.hasAttribute('href')) {
             const href = btn.getAttribute('href') || '';
             if (href.includes('.html')) {
-                return; // Навигация срабатывает штатно!
+                return;
             }
         }
 
         const btnText = btn.textContent.trim().toLowerCase();
-        
-        // Перехватываем ТОЛЬКО реальные кнопки добавления товара ("в корзину")
         const isAddBtn = (btnText === 'в корзину' || btnText === 'добавить в корзину');
 
         if (isAddBtn && !btnText.includes('перейти')) {
             if (e) e.preventDefault();
 
-            // Ищем карточку товара или страницу товара
             const card = btn.closest('.product-card') || btn.closest('.product-page') || btn.closest('.product-details');
             
             let title = 'OVERSIZE HOODIE URBAN BLACK';
@@ -183,7 +178,6 @@ function initGlobalCartEvents() {
 
             saveCartToStorage(cart);
 
-            // Анимация кнопки
             const oldText = btn.textContent;
             btn.classList.add('added-to-cart');
             btn.textContent = 'В КОРЗИНЕ ✓';
@@ -367,7 +361,7 @@ function initCartMarkup() {
 }
 
 /* ==========================================
-   3. ПОЛНАЯ СТРАНИЦА КОРЗИНЫ (CART.HTML)
+   3. ПОЛНАЯ СТРАНИЦА КОРЗИНЫ (БЕЗ ЭМОДЗИ, СО СТРОГИМИ SVG)
    ========================================== */
 function initFullCartPage() {
     const listContainer = document.getElementById('full-cart-items-list');
@@ -427,8 +421,12 @@ function initFullCartPage() {
                         <button class="full-qty-btn plus" data-index="${index}">+</button>
                     </div>
                     <div class="cart-full-item__actions">
-                        <button class="icon-action-btn delete-item-btn" data-index="${index}" title="Удалить">🗑️</button>
-                        <button class="icon-action-btn wishlist-item-btn" title="В избранное">❤️</button>
+                        <button class="icon-action-btn delete-item-btn" data-index="${index}" title="Удалить">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                        <button class="icon-action-btn wishlist-item-btn" title="В избранное">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                        </button>
                     </div>
                 `;
                 listContainer.appendChild(itemRow);
@@ -458,7 +456,7 @@ function initFullCartPage() {
 
             const needed = Math.max(0, freeShippingThreshold - totalItemsPrice);
             if (needed === 0) {
-                if (shippingText) shippingText.innerHTML = `🎉 <strong>Поздравляем!</strong> Вы получили бесплатную доставку!`;
+                if (shippingText) shippingText.innerHTML = `Поздравляем! Вы получили бесплатную доставку Почтой России!`;
             } else {
                 shippingNeededEl.textContent = `${formatPrice(needed)} ₽`;
             }
@@ -548,7 +546,7 @@ function initFullCartPage() {
             const code = promoInput.value.trim().toUpperCase();
             if (code === 'HKS10' || code === 'SALE10') {
                 discountAmount = 1000;
-                alert('🎉 Промокод применен! Скидка 1 000 руб');
+                alert('Промокод применен! Скидка 1 000 руб');
             } else if (code) {
                 alert('Промокод недействителен. Попробуйте HKS10');
             }
@@ -634,7 +632,7 @@ function initCheckoutPage() {
 
                 const data = await res.json();
                 if (res.ok) {
-                    alert(`🎉 Заказ #${data.order_number} успешно подтвержден!\nДетали заказа отправлены на Email: ${email}`);
+                    alert(`Заказ #${data.order_number} успешно подтвержден!\nДетали отправлены на Email: ${email}`);
                     saveCartToStorage([]);
                     window.location.href = 'profile.html';
                 } else {
@@ -650,14 +648,14 @@ function initCheckoutPage() {
 }
 
 /* ==========================================
-   5. ВИДДЖЕТ ПОДДЕРЖКИ
+   5. ВИДДЖЕТ ПОДДЕРЖКИ БЕЗ ЭМОДЗИ
    ========================================== */
 function initSupportWidget() {
     if (document.getElementById('nks-support-root')) return;
 
     const widgetHTML = `
         <div class="nks-support-widget" id="nks-support-root">
-            <div class="nks-support-badge">Есть вопросы? Мы онлайн! 💬</div>
+            <div class="nks-support-badge">Служба поддержки HKS</div>
             <button class="nks-support-btn" id="nks-support-toggle" aria-label="Чат поддержки">
                 <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
             </button>
@@ -667,26 +665,28 @@ function initSupportWidget() {
             <div class="support-modal-card">
                 <div class="support-modal-header">
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <div class="support-avatar-online">💬</div>
+                        <div class="support-avatar-online">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                        </div>
                         <div>
-                            <h4 style="font-family: var(--font-heading); font-size: 0.95rem; color: #ffffff;">СЛУЖБА ПОДДЕРЖКИ HKS</h4>
-                            <span style="font-size: 0.72rem; color: #4ade80;">● Онлайн (отвечаем за 2 мин)</span>
+                            <h4 style="font-family: var(--font-heading); font-size: 0.95rem; color: #ffffff;">ПОДДЕРЖКА HKS MAN</h4>
+                            <span style="font-size: 0.72rem; color: #4ade80;">● Онлайн</span>
                         </div>
                     </div>
                     <button id="support-modal-close" style="background: none; border: none; color: #ffffff; font-size: 1.2rem; cursor: pointer;">✕</button>
                 </div>
                 <div class="support-modal-body">
                     <p style="font-size: 0.88rem; color: var(--color-text-main); margin-bottom: 16px;">
-                        Привет! Нужна помощь с выбором размера, заказом или доставкой? Свяжитесь с нами любым удобным способом:
+                        Нужна помощь с выбором размера, заказом или доставкой? Свяжитесь с нами:
                     </p>
                     <a href="https://t.me/" target="_blank" class="support-channel-btn telegram-btn">
-                        ✈️ Написать в Telegram
+                        Написать в Telegram
                     </a>
                     <a href="https://wa.me/" target="_blank" class="support-channel-btn whatsapp-btn">
-                        🟢 Написать в WhatsApp
+                        Написать в WhatsApp
                     </a>
                     <a href="tel:88005553535" class="support-channel-btn phone-btn">
-                        📞 Позвонить 8 (800) 555-35-35
+                        Позвонить 8 (800) 555-35-35
                     </a>
                 </div>
             </div>
