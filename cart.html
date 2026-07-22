@@ -92,7 +92,7 @@
         </div>
     </div>
 
-    <!-- СТРАНИЦА КОРЗИНЫ СТРОГО ПО РЕФЕРЕНСУ СНИМКА -->
+    <!-- СТРАНИЦА КОРЗИНЫ СТРОГО ПО РЕФЕРЕНСУ (БЕЗ ОПЛАТЫ ДОЛЯМИ) -->
     <main class="cart-page-wrapper">
         <div class="container">
             <nav class="cart-breadcrumbs">
@@ -101,22 +101,10 @@
 
             <h1 class="cart-main-title">КОРЗИНА</h1>
 
-            <!-- ПЛАШКА ДОЛЯМИ -->
-            <div class="dolyami-banner">
-                <div class="dolyami-banner__left">
-                    <span class="dolyami-logo-badge">\\\\</span>
-                    <div>
-                        <strong>Оплатите Долями <span id="dolyami-amount">2 620 ₽</span></strong>
-                        <div class="dolyami-sub">Остальное потом — раз в 2 недели</div>
-                    </div>
-                </div>
-                <button class="btn-dolyami-more">Подробнее</button>
-            </div>
-
             <!-- СЕТКА КОРЗИНЫ: СЛЕВА ТОВАРЫ, СТРАВА ИТОГО -->
             <div class="cart-full-grid">
                 
-                <!-- ЛЕВАЯ КОЛОНКА (СПИСОК ТОВАРОВ И УПРАВЛЕНИЕ) -->
+                <!-- ЛЕВАЯ КОЛОНКА -->
                 <div class="cart-left-col">
                     <div class="cart-table-controls">
                         <label class="checkbox-label">
@@ -128,9 +116,9 @@
                         </button>
                     </div>
 
-                    <!-- СПИСОК ТОВАРОВ В КОРЗИНЕ -->
+                    <!-- СПИСОК ТОВАРОВ -->
                     <div id="full-cart-items-list" class="cart-items-list">
-                        <!-- Динамический рендеринг JS -->
+                        <!-- Динамический рендеринг через JS -->
                     </div>
 
                     <!-- НИЖНИЕ КНОПКИ УПРАВЛЕНИЯ -->
@@ -140,7 +128,7 @@
                     </div>
                 </div>
 
-                <!-- ПРАВАЯ КОЛОНКА (БОНУСЫ, ПРОМОКОД И ИТОГИ СНИМКА) -->
+                <!-- ПРАВАЯ КОЛОНКА (БОНУСЫ, ПРОМОКОД И ИТОГИ) -->
                 <div class="cart-right-col">
                     
                     <!-- БОНУСЫ И ПРОГРЕСС БАР БЕСПЛАТНОЙ ДОСТАВКИ -->

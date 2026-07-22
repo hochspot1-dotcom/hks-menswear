@@ -541,6 +541,18 @@ img { max-width: 100%; display: block; object-fit: cover; }
     cursor: default !important;
 }
 
+.cart-item__img {
+    width: 64px !important;
+    height: 64px !important;
+    min-width: 64px !important;
+    max-width: 64px !important;
+    min-height: 64px !important;
+    max-height: 64px !important;
+    border-radius: var(--radius-sm);
+    object-fit: cover !important;
+    flex-shrink: 0 !important;
+}
+
 /* ==========================================
    КАТАЛОГ С ИНТЕРАКТИВНЫМИ ФИЛЬТРАМИ И ПОПОВЕРАМИ (ИСПРАВЛЕНО)
    ========================================== */
