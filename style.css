@@ -131,6 +131,45 @@ img { max-width: 100%; display: block; object-fit: cover; }
     text-transform: uppercase;
 }
 
+/* ТИКЕР (БЕГУЩАЯ СТРОКА) — чистый CSS, работает на любом устройстве */
+.ticker-bar {
+    background-color: var(--color-dark-accent);
+    color: #ffffff;
+    overflow: hidden;
+    padding: 10px 0;
+    font-family: var(--font-heading);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+.ticker-track {
+    display: inline-flex;
+    animation: tickerScroll 28s linear infinite;
+    will-change: transform;
+}
+.ticker-track:hover { animation-play-state: paused; }
+.ticker-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding-right: 60px;
+    text-transform: uppercase;
+}
+.ticker-sep {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    margin-right: 48px;
+    flex-shrink: 0;
+}
+@keyframes tickerScroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
 /* ШАПКА И НАВИГАЦИЯ */
 .header {
     position: sticky;
@@ -353,9 +392,44 @@ img { max-width: 100%; display: block; object-fit: cover; }
 .slider-placeholder__text { color: var(--color-text-muted); font-size: 0.88rem; margin-bottom: 20px; }
 .slider-link-arrow { font-family: var(--font-heading); font-size: 0.85rem; font-weight: 900; color: var(--color-primary); text-transform: uppercase; }
 
-.slider-placeholder__dots { display: flex; align-items: center; gap: 8px; margin-top: 24px; z-index: 3; }
-.dot { width: 8px; height: 8px; border-radius: 50%; background-color: rgba(15, 23, 42, 0.2); cursor: pointer; transition: var(--transition); }
-.dot.active { background-color: var(--color-primary); width: 22px; border-radius: 10px; }
+.slider-placeholder__dots { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 24px; z-index: 3; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background-color: rgba(255,255,255,0.45); cursor: pointer; transition: var(--transition); }
+.dot.active { background-color: #ffffff; width: 22px; border-radius: 10px; }
+
+/* СТРЕЛКИ СЛАЙДЕРА */
+.slider-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.92);
+    border: none;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--color-dark-accent);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    transition: var(--transition);
+    backdrop-filter: blur(6px);
+}
+.slider-arrow:hover {
+    background: var(--color-primary);
+    color: #ffffff;
+    transform: translateY(-50%) scale(1.08);
+    box-shadow: 0 8px 24px rgba(37,99,235,0.35);
+}
+.slider-arrow--prev { left: 16px; }
+.slider-arrow--next { right: 16px; }
+
+@media (max-width: 576px) {
+    .slider-arrow { width: 36px; height: 36px; }
+    .slider-arrow--prev { left: 8px; }
+    .slider-arrow--next { right: 8px; }
+}
 
 /* БАННЕРЫ И КОЛЛЕКЦИИ */
 .collections-section { padding: 10px 0 30px; }

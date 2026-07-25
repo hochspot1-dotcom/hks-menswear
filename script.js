@@ -777,42 +777,133 @@ function initDynamicProductSEO() {
 function initHeroSlider() {
     const sliderContainer = document.getElementById('hero-slider');
     if (!sliderContainer) return;
+
     const slides = sliderContainer.querySelectorAll('.slide');
-    const dots = sliderContainer.querySelectorAll('.dot');
+    const dots   = sliderContainer.querySelectorAll('.dot');
+    const prevBtn = document.getElementById('slider-prev');
+    const nextBtn = document.getElementById('slider-next');
+    const bgImg   = document.getElementById('slider-bg-img');
+
     if (slides.length === 0) return;
 
     let currentSlide = 0;
+    let autoTimer = null;
+
     function goToSlide(index) {
-        slides.forEach(slide => slide.classList.remove('active'));
-        dots.forEach(dot => dot.classList.remove('active'));
+        slides[currentSlide].classList.remove('active');
+        if (dots[currentSlide]) dots[currentSlide].classList.remove('active');
+
         currentSlide = (index + slides.length) % slides.length;
+
         slides[currentSlide].classList.add('active');
         if (dots[currentSlide]) dots[currentSlide].classList.add('active');
+
+        // Меняем фоновое изображение если задан data-img
+        if (bgImg) {
+            const imgSrc = slides[currentSlide].dataset.img;
+            if (imgSrc) {
+                bgImg.style.opacity = '0';
+                setTimeout(() => {
+                    bgImg.src = imgSrc;
+                    bgImg.style.opacity = '';
+                }, 250);
+            }
+        }
     }
 
+    function startAuto() {
+        clearInterval(autoTimer);
+        autoTimer = setInterval(() => goToSlide(currentSlide + 1), 4500);
+    }
+
+    // Стрелки
+    if (prevBtn) prevBtn.addEventListener('click', () => { goToSlide(currentSlide - 1); startAuto(); });
+    if (nextBtn) nextBtn.addEventListener('click', () => { goToSlide(currentSlide + 1); startAuto(); });
+
+    // Точки
     dots.forEach((dot, index) => {
-        dot.addEventListener('click', () => goToSlide(index));
+        dot.addEventListener('click', () => { goToSlide(index); startAuto(); });
     });
 
-    setInterval(() => goToSlide(currentSlide + 1), 4000);
+    // Свайп на мобильных
+    let touchStartX = 0;
+    sliderContainer.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    sliderContainer.addEventListener('touchend', e => {
+        const diff = touchStartX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 50) {
+            goToSlide(diff > 0 ? currentSlide + 1 : currentSlide - 1);
+            startAuto();
+        }
+    }, { passive: true });
+
+    startAuto();
 }
 
 function initCatalogFilters() {
-    const categoryLinks = document.querySelectorAll('.filter-link[data-category], .filter-pill-btn[data-category]');
-    const productCards = document.querySelectorAll('.catalog-content .product-card');
-    if (productCards.length === 0) return;
+    const grid = document.getElementById('catalog-products-grid');
+    if (!grid) return;
 
-    categoryLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const cat = link.dataset.category;
-            productCards.forEach(card => {
-                if (cat === 'all' || card.dataset.category === cat) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
+    // Сброс
+    const resetBtn = document.getElementById('reset-filters-btn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            // Снять все чекбоксы категорий — поставить checked
+            grid.querySelectorAll('.product-card').forEach(c => c.style.display = '');
+            // Сбросить radio на дефолт
+            const catChecks = document.querySelectorAll('#dropdown-cat input[type=checkbox]');
+            catChecks.forEach(c => c.checked = true);
+            const sortNew = document.querySelector('#dropdown-sort input[value=new]');
+            if (sortNew) sortNew.checked = true;
+            applyFilters();
         });
+    }
+
+    // Применение фильтров
+    function applyFilters() {
+        const cards = Array.from(grid.querySelectorAll('.product-card'));
+
+        // --- Фильтр по КАТЕГОРИИ ---
+        const checkedCats = Array.from(
+            document.querySelectorAll('#dropdown-cat input[type=checkbox]:checked')
+        ).map(c => c.value);
+
+        // --- Сортировка ---
+        const sortVal = document.querySelector('#dropdown-sort input[type=radio]:checked')?.value || 'new';
+
+        // Показываем / скрываем
+        let visible = cards.filter(card => {
+            const cat = card.dataset.category || '';
+            return checkedCats.length === 0 || checkedCats.some(c => cat.includes(c));
+        });
+
+        // Сортировка видимых карточек
+        if (sortVal === 'asc') {
+            visible.sort((a, b) => parseFloat(a.dataset.price) - parseFloat(b.dataset.price));
+        } else if (sortVal === 'desc') {
+            visible.sort((a, b) => parseFloat(b.dataset.price) - parseFloat(a.dataset.price));
+        }
+        // 'new' — оставляем как в DOM (порядок добавления)
+
+        // Скрываем все
+        cards.forEach(c => { c.style.display = 'none'; c.style.order = ''; });
+
+        // Показываем и расставляем order
+        visible.forEach((c, i) => {
+            c.style.display = '';
+            c.style.order = i;
+        });
+
+        const noMsg = document.getElementById('no-products-msg');
+        if (noMsg) noMsg.style.display = visible.length === 0 ? 'block' : 'none';
+    }
+
+    // Вешаем обработчики на все чекбоксы и radio
+    document.querySelectorAll('.filter-dropdown-menu input').forEach(inp => {
+        inp.addEventListener('change', applyFilters);
     });
+
+    // Устанавливаем grid как flex с order support
+    grid.style.display = 'grid';
+
+    applyFilters();
 }

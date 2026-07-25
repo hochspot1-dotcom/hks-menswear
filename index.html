@@ -125,30 +125,57 @@
     </div>
 
     <main>
+        <!-- БЕГУЩАЯ СТРОКА (CSS-анимация, работает на всех устройствах) -->
+        <div class="ticker-bar" aria-hidden="true">
+            <div class="ticker-track">
+                <span class="ticker-item">БЕСПЛАТНАЯ ДОСТАВКА ОТ 5 000 РУБ</span>
+                <span class="ticker-sep"></span>
+                <span class="ticker-item">СКИДКИ ДО -40% НА НОВУЮ КОЛЛЕКЦИЮ</span>
+                <span class="ticker-sep"></span>
+                <span class="ticker-item">НОВЫЙ ОВЕРСАЙЗ ДРОП — URBAN LAB 2026</span>
+                <span class="ticker-sep"></span>
+                <span class="ticker-item">БЕСПЛАТНЫЙ ВОЗВРАТ В ТЕЧЕНИЕ 30 ДНЕЙ</span>
+                <span class="ticker-sep"></span>
+                <span class="ticker-item">ПРОМОКОД HKS10 — СКИДКА 1 000 РУБ</span>
+                <span class="ticker-sep"></span>
+                <!-- Дубликат для бесшовного цикла -->
+                <span class="ticker-item">БЕСПЛАТНАЯ ДОСТАВКА ОТ 5 000 РУБ</span>
+                <span class="ticker-sep"></span>
+                <span class="ticker-item">СКИДКИ ДО -40% НА НОВУЮ КОЛЛЕКЦИЮ</span>
+                <span class="ticker-sep"></span>
+                <span class="ticker-item">НОВЫЙ ОВЕРСАЙЗ ДРОП — URBAN LAB 2026</span>
+                <span class="ticker-sep"></span>
+                <span class="ticker-item">БЕСПЛАТНЫЙ ВОЗВРАТ В ТЕЧЕНИЕ 30 ДНЕЙ</span>
+                <span class="ticker-sep"></span>
+                <span class="ticker-item">ПРОМОКОД HKS10 — СКИДКА 1 000 РУБ</span>
+                <span class="ticker-sep"></span>
+            </div>
+        </div>
+
         <!-- 1. ГЛАВНЫЙ СЛАЙДЕР С КАРТИНКОЙ НА ФОНЕ ВВЕРХУ (HERO SLIDER) -->
         <section class="slider-section">
             <div class="container">
                 <div class="slider-placeholder" id="hero-slider">
-                    <!-- Изображение на фоне главной страницы справа вверху (из референса) -->
-                    <img src="./images/oversize_hoodie_black.jpg" alt="Мужской оверсайз образ" class="slider-placeholder__hero-img">
+                    <!-- Фоновое изображение слайдера -->
+                    <img src="./images/oversize_hoodie_black.jpg" alt="Мужской оверсайз образ" class="slider-placeholder__hero-img" id="slider-bg-img">
 
                     <div class="slider-slides">
                         <!-- Слайд 1 -->
-                        <div class="slide active">
+                        <div class="slide active" data-img="./images/oversize_hoodie_black.jpg">
                             <span class="badge">NEW COLLECTION 2026</span>
                             <h1 class="slider-placeholder__title">URBAN STREETWEAR</h1>
                             <p class="slider-placeholder__text">Худи оверсайз, брюки карго и куртки для активного городского стиля.</p>
                             <a href="catalog.html" class="slider-link-arrow">СМОТРЕТЬ КОЛЛЕКЦИЮ ↗</a>
                         </div>
                         <!-- Слайд 2 -->
-                        <div class="slide">
-                            <span class="badge badge--dark">ДРОП 460G COTTON</span>
+                        <div class="slide" data-img="./images/cargo_pants_khaki.jpg">
+                            <span class="badge" style="background: #0f172a;">ДРОП 460G COTTON</span>
                             <h1 class="slider-placeholder__title">OVERSIZE HOODIES</h1>
                             <p class="slider-placeholder__text">Плотный 100% хлопковый флис с глубоким капюшоном.</p>
                             <a href="catalog.html" class="slider-link-arrow">СМОТРЕТЬ ХУДИ ↗</a>
                         </div>
                         <!-- Слайд 3 -->
-                        <div class="slide">
+                        <div class="slide" data-img="./images/puffer_jacket_blue.jpg">
                             <span class="badge">ВЕРХНЯЯ ОДЕЖДА</span>
                             <h1 class="slider-placeholder__title">PUFFER JACKETS</h1>
                             <p class="slider-placeholder__text">Технологичные куртки и пуховики с защитой от ветра и влаги.</p>
@@ -156,10 +183,16 @@
                         </div>
                     </div>
 
+                    <!-- КНОПКИ-СТРЕЛКИ СЛАЙДЕРА -->
+                    <button class="slider-arrow slider-arrow--prev" id="slider-prev" aria-label="Предыдущий слайд">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <button class="slider-arrow slider-arrow--next" id="slider-next" aria-label="Следующий слайд">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+
+                    <!-- ТОЧКИ НАВИГАЦИИ -->
                     <div class="slider-placeholder__dots">
-                        <div class="slider-nav-controls">
-                            <span>← 1/3 →</span>
-                        </div>
                         <span class="dot active" data-slide="0"></span>
                         <span class="dot" data-slide="1"></span>
                         <span class="dot" data-slide="2"></span>
