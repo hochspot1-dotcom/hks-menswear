@@ -194,48 +194,100 @@
         </div>
     </main>
 
-    <!-- ПОДВАЛ С ВЫСОКОЙ КОНТРАСТНОСТЬЮ -->
+    <!-- ПОДВАЛ (FOOTER) -->
     <footer class="footer">
-        <div class="container footer__grid">
-            <div class="footer__col">
-                <a href="index.html" class="logo logo--footer">
-                    <span>HKS</span><span class="logo__accent">MAN</span><span class="logo__dot"></span>
-                </a>
-                <p class="footer__about">Интернет-магазин стильной мужской одежды для поколения URBAN 2026.</p>
-            </div>
-            <div class="footer__col">
-                <h4 class="footer__title">Категории</h4>
-                <ul class="footer__links">
-                    <li><a href="catalog.html?cat=hoodies">Худи и Свитшоты</a></li>
-                    <li><a href="catalog.html?cat=tshirts">Футболки и Лонгсливы</a></li>
-                    <li><a href="catalog.html?cat=jackets">Куртки и Пуховики</a></li>
-                    <li><a href="catalog.html?cat=pants">Брюки и Джинсы</a></li>
-                </ul>
-            </div>
-            <div class="footer__col">
-                <h4 class="footer__title">Покупателям</h4>
-                <ul class="footer__links">
-                    <li><a href="cart.html">Корзина</a></li>
-                    <li><a href="profile.html">Личный кабинет</a></li>
-                    <li><a href="checkout.html">Оформление заказа</a></li>
-                </ul>
-            </div>
-            <div class="footer__col">
-                <h4 class="footer__title">Контакты</h4>
-                <ul class="footer__contacts">
-                    <li><span>Email: support@hksman.ru</span></li>
-                    <li><span>Телефон: 8 (800) 555-35-35</span></li>
-                    <li><span>График: Пн-Вс с 09:00 до 21:00</span></li>
-                </ul>
+        <div class="container">
+            <div class="footer__grid">
+                <!-- Бренд -->
+                <div class="footer__col footer__col--brand">
+                    <a href="index.html" class="logo logo--footer">
+                        <span>HKS</span><span class="logo__accent">MAN</span><span class="logo__dot"></span>
+                    </a>
+                    <p class="footer__about">
+                        Премиальный интернет-магазин стильной мужской одежды и streetwear. Оверсайз худи, куртки, брюки карго и аксессуары.
+                    </p>
+                    <div class="footer__status-badge">
+                        <span class="footer__status-dot"></span> Онлайн-магазин 24/7 • Доставка по РФ
+                    </div>
+                    <div class="footer__socials">
+                        <a href="https://t.me/" target="_blank" rel="noopener" class="footer__social-link" aria-label="Telegram">
+                            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.69-.52.36-1 .53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.37-.49 1.02-.74 3.99-1.74 6.66-2.89 8.01-3.45 3.81-1.58 4.6-.1.86 4.6.1.86z"/></svg>
+                        </a>
+                        <a href="https://vk.com/" target="_blank" rel="noopener" class="footer__social-link" aria-label="VKontakte">
+                            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M15.684 18.067c-5.306 0-8.332-3.633-8.458-9.684h2.664c.088 4.439 2.045 6.319 3.595 6.707V8.383h2.512v3.827c1.537-.165 3.136-1.902 3.682-3.827h2.512c-.419 2.37-2.17 4.106-3.411 4.827 1.241.586 3.23 2.138 3.978 4.857h-2.771c-.586-1.823-2.045-3.23-3.978-3.376v3.376h-.326z"/></svg>
+                        </a>
+                        <a href="https://wa.me/78005553535" target="_blank" rel="noopener" class="footer__social-link" aria-label="WhatsApp">
+                            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2zm5.82 14.15c-.25.7-1.46 1.34-2.02 1.41-.53.07-1.2.1-3.47-.83-2.9-1.19-4.77-4.14-4.92-4.33-.14-.19-1.18-1.57-1.18-3 0-1.43.74-2.13 1.01-2.42.27-.29.59-.36.79-.36.2 0 .4 0 .57.01.18.01.43-.07.67.51.25.6.85 2.07.92 2.22.07.15.12.33.02.53-.1.2-.15.33-.3.5-.15.17-.31.38-.45.51-.15.15-.3.31-.13.6.17.29.77 1.27 1.65 2.05 1.13 1 2.08 1.31 2.37 1.46.29.15.46.13.63-.07.17-.2.74-.86.94-1.16.2-.3.4-.25.67-.15.27.1 1.72.81 2.02.96.3.15.5.22.57.34.07.12.07.7-.18 1.4z"/></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Категории -->
+                <div class="footer__col">
+                    <h4 class="footer__title">Категории</h4>
+                    <ul class="footer__links">
+                        <li><a href="catalog.html?cat=hoodie">Худи & Свитшоты</a></li>
+                        <li><a href="catalog.html?cat=tshirt">Футболки & Лонгсливы</a></li>
+                        <li><a href="catalog.html?cat=jackets">Куртки & Пуховики</a></li>
+                        <li><a href="catalog.html?cat=pants">Брюки & Карго</a></li>
+                        <li><a href="catalog.html" class="footer__link--highlight">Скидки до -40%</a></li>
+                    </ul>
+                </div>
+
+                <!-- Информация -->
+                <div class="footer__col">
+                    <h4 class="footer__title">Информация</h4>
+                    <ul class="footer__links">
+                        <li><a href="catalog.html">О нас</a></li>
+                        <li><a href="catalog.html">Таблица размеров</a></li>
+                        <li><a href="checkout.html">Доставка и оплата</a></li>
+                        <li><a href="cart.html">Корзина покупок</a></li>
+                        <li><a href="profile.html">Личный кабинет</a></li>
+                    </ul>
+                </div>
+
+                <!-- Контакты -->
+                <div class="footer__col">
+                    <h4 class="footer__title">Контакты</h4>
+                    <ul class="footer__contacts">
+                        <li>
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                            <a href="mailto:support@hksman.ru">support@hksman.ru</a>
+                        </li>
+                        <li>
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                            <a href="tel:88005553535">8 (800) 555-35-35</a>
+                        </li>
+                        <li class="footer__contact-info">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span>Пн-Вс: 09:00 – 21:00</span>
+                        </li>
+                        <li class="footer__contact-info">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <span>г. Москва, Россия</span>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
+
+        <!-- Нижняя полоса -->
         <div class="footer__bottom">
-            <div class="container">
-                © 2026 HKS MAN. Все права защищены.
+            <div class="container footer__bottom-container">
+                <p>© 2026 HKS MAN. Все права защищены.</p>
+                <div class="footer__legal-links">
+                    <a href="#">Политика конфиденциальности</a>
+                    <span>•</span>
+                    <a href="#">Публичная оферта</a>
+                </div>
+                <div class="footer__payments">
+                    <span class="payment-badge">MIR</span>
+                    <span class="payment-badge">VISA</span>
+                    <span class="payment-badge">MASTERCARD</span>
+                    <span class="payment-badge">СБП</span>
+                </div>
             </div>
         </div>
     </footer>
-
-    <script src="script.js" defer></script>
 </body>
 </html>

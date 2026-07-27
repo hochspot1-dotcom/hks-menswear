@@ -648,14 +648,20 @@ function initCheckoutPage() {
 }
 
 /* ==========================================
-   5. ВИДДЖЕТ ПОДДЕРЖКИ БЕЗ ЭМОДЗИ
+   5. ВИДДЖЕТ ПОДДЕРЖКИ С АНИМАЦИЕЙ И ССЫЛКАМИ
    ========================================== */
 function initSupportWidget() {
+    // Удаляем старые статические виджеты если есть в HTML, чтобы исключить дублирование
+    document.querySelectorAll('.nks-support-widget:not(#nks-support-root)').forEach(el => el.remove());
+
     if (document.getElementById('nks-support-root')) return;
 
     const widgetHTML = `
         <div class="nks-support-widget" id="nks-support-root">
-            <div class="nks-support-badge">Служба поддержки HKS</div>
+            <div class="nks-support-badge" id="nks-support-badge">
+                <span class="online-pulse-dot"></span>
+                <span>Есть вопросы? Напишите нам! 💬</span>
+            </div>
             <button class="nks-support-btn" id="nks-support-toggle" aria-label="Чат поддержки">
                 <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
             </button>
@@ -664,28 +670,33 @@ function initSupportWidget() {
         <div class="support-modal-overlay" id="support-modal">
             <div class="support-modal-card">
                 <div class="support-modal-header">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <div class="support-avatar-online">
-                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 40px; height: 40px; background-color: var(--color-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #ffffff;">
+                            <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
                         </div>
                         <div>
-                            <h4 style="font-family: var(--font-heading); font-size: 0.95rem; color: #ffffff;">ПОДДЕРЖКА HKS MAN</h4>
-                            <span style="font-size: 0.72rem; color: #4ade80;">● Онлайн</span>
+                            <h4 style="font-family: var(--font-heading); font-size: 0.95rem; color: #ffffff; margin: 0;">ПОДДЕРЖКА HKS MAN</h4>
+                            <span style="font-size: 0.72rem; color: #4ade80; display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+                                <span class="online-pulse-dot"></span> Онлайн • Отвечаем за 2 мин
+                            </span>
                         </div>
                     </div>
-                    <button id="support-modal-close" style="background: none; border: none; color: #ffffff; font-size: 1.2rem; cursor: pointer;">✕</button>
+                    <button id="support-modal-close" class="support-modal-close-btn" aria-label="Закрыть">✕</button>
                 </div>
                 <div class="support-modal-body">
-                    <p style="font-size: 0.88rem; color: var(--color-text-main); margin-bottom: 16px;">
-                        Нужна помощь с выбором размера, заказом или доставкой? Свяжитесь с нами:
+                    <p style="font-size: 0.88rem; color: var(--color-text-main); margin-bottom: 16px; line-height: 1.5;">
+                        Нужна помощь с выбором размера, заказом или доставкой? Выберите удобный способ связи:
                     </p>
-                    <a href="https://t.me/" target="_blank" class="support-channel-btn telegram-btn">
+                    <a href="https://t.me/" target="_blank" rel="noopener" class="support-channel-btn telegram-btn">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.69-.52.36-1 .53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.37-.49 1.02-.74 3.99-1.74 6.66-2.89 8.01-3.45 3.81-1.58 4.6-.1.86 4.6.1.86z"/></svg>
                         Написать в Telegram
                     </a>
-                    <a href="https://wa.me/" target="_blank" class="support-channel-btn whatsapp-btn">
+                    <a href="https://wa.me/78005553535" target="_blank" rel="noopener" class="support-channel-btn whatsapp-btn">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2zm5.82 14.15c-.25.7-1.46 1.34-2.02 1.41-.53.07-1.2.1-3.47-.83-2.9-1.19-4.77-4.14-4.92-4.33-.14-.19-1.18-1.57-1.18-3 0-1.43.74-2.13 1.01-2.42.27-.29.59-.36.79-.36.2 0 .4 0 .57.01.18.01.43-.07.67.51.25.6.85 2.07.92 2.22.07.15.12.33.02.53-.1.2-.15.33-.3.5-.15.17-.31.38-.45.51-.15.15-.3.31-.13.6.17.29.77 1.27 1.65 2.05 1.13 1 2.08 1.31 2.37 1.46.29.15.46.13.63-.07.17-.2.74-.86.94-1.16.2-.3.4-.25.67-.15.27.1 1.72.81 2.02.96.3.15.5.22.57.34.07.12.07.7-.18 1.4z"/></svg>
                         Написать в WhatsApp
                     </a>
                     <a href="tel:88005553535" class="support-channel-btn phone-btn">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                         Позвонить 8 (800) 555-35-35
                     </a>
                 </div>
@@ -696,12 +707,18 @@ function initSupportWidget() {
     document.body.insertAdjacentHTML('beforeend', widgetHTML);
 
     const toggleBtn = document.getElementById('nks-support-toggle');
+    const badgeBtn = document.getElementById('nks-support-badge');
     const supportModal = document.getElementById('support-modal');
     const closeBtn = document.getElementById('support-modal-close');
 
-    if (toggleBtn && supportModal) {
-        toggleBtn.addEventListener('click', () => supportModal.classList.add('active'));
-        if (closeBtn) closeBtn.addEventListener('click', () => supportModal.classList.remove('active'));
+    function openModal() {
+        if (supportModal) supportModal.classList.add('active');
+    }
+
+    if (toggleBtn) toggleBtn.addEventListener('click', openModal);
+    if (badgeBtn) badgeBtn.addEventListener('click', openModal);
+    if (closeBtn) closeBtn.addEventListener('click', () => supportModal.classList.remove('active'));
+    if (supportModal) {
         supportModal.addEventListener('click', (e) => {
             if (e.target === supportModal) supportModal.classList.remove('active');
         });
