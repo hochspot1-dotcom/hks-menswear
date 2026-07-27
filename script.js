@@ -61,7 +61,40 @@ document.addEventListener('DOMContentLoaded', () => {
     initDropdownFilters();
     initDynamicProductSEO();
     initSupportWidget();
+    initWishlistButtons();
 });
+
+/* ==========================================
+   АНИМАЦИЯ КНОПКИ ИЗБРАННОГО (WISHLIST)
+   ========================================== */
+function initWishlistButtons() {
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.product-card__wishlist');
+        if (!btn) return;
+
+        // Анимация
+        btn.classList.remove('heart-beat');
+        void btn.offsetWidth; // reflow для перезапуска анимации
+        btn.classList.add('heart-beat');
+
+        // Переключение активного состояния
+        btn.classList.toggle('active');
+
+        // Цвет SVG
+        const svg = btn.querySelector('svg');
+        if (svg) {
+            if (btn.classList.contains('active')) {
+                svg.style.fill = '#ef4444';
+                svg.style.stroke = '#ef4444';
+            } else {
+                svg.style.fill = 'none';
+                svg.style.stroke = 'currentColor';
+            }
+        }
+
+        setTimeout(() => btn.classList.remove('heart-beat'), 400);
+    });
+}
 
 /* ==========================================
    МОБИЛЬНОЕ БУРГЕР-МЕНЮ
@@ -194,10 +227,9 @@ function initGlobalCartEvents() {
             btn.disabled = false;
         }, 2000);
 
-        // Обновить и открыть шторку
+        // Обновить рендер (но НЕ открывать шторку автоматически — только по иконке корзины)
         if (typeof renderMiniCartGlobal === 'function') renderMiniCartGlobal();
         if (typeof renderFullCartGlobal === 'function') renderFullCartGlobal();
-        if (typeof openMiniCartGlobal === 'function') openMiniCartGlobal();
     });
 }
 
