@@ -860,13 +860,31 @@ function initCatalogFilters() {
     const grid = document.getElementById('catalog-products-grid');
     if (!grid) return;
 
+    // --- ПАРСИНГ URL-ПАРАМЕТРОВ ПЕРЕХОДА (например catalog.html?cat=hoodie) ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const catParam = urlParams.get('cat');
+    if (catParam) {
+        const catChecks = document.querySelectorAll('#dropdown-cat input[type=checkbox]');
+        let matched = false;
+        catChecks.forEach(c => {
+            if (c.value === catParam || catParam.includes(c.value) || c.value.includes(catParam)) {
+                c.checked = true;
+                matched = true;
+            } else {
+                c.checked = false;
+            }
+        });
+        if (!matched) {
+            catChecks.forEach(c => c.checked = true);
+        }
+    }
+
     // Сброс
     const resetBtn = document.getElementById('reset-filters-btn');
     if (resetBtn) {
         resetBtn.addEventListener('click', () => {
-            // Снять все чекбоксы категорий — поставить checked
+            // Поставить все чекбоксы категорий в true
             grid.querySelectorAll('.product-card').forEach(c => c.style.display = '');
-            // Сбросить radio на дефолт
             const catChecks = document.querySelectorAll('#dropdown-cat input[type=checkbox]');
             catChecks.forEach(c => c.checked = true);
             const sortNew = document.querySelector('#dropdown-sort input[value=new]');
