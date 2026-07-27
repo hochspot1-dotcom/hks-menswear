@@ -325,41 +325,57 @@ function initMiniCart() {
     renderMiniCartGlobal = renderCart;
 
     function attachMiniCartEvents() {
-        document.querySelectorAll('.cart-item .qty-btn.plus').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const title = e.currentTarget.dataset.title;
-                const cart = getCartFromStorage();
-                const item = cart.find(i => i.title === title);
-                if (item) {
-                    item.quantity++;
+        const cartItemsContainer = document.getElementById('cart-drawer-items');
+        if (cartItemsContainer && !cartItemsContainer.dataset.eventsBound) {
+            cartItemsContainer.dataset.eventsBound = 'true';
+            cartItemsContainer.addEventListener('click', (e) => {
+                const plusBtn = e.target.closest('.qty-btn.plus');
+                const minusBtn = e.target.closest('.qty-btn.minus');
+                const removeBtn = e.target.closest('.cart-item__remove');
+
+                if (plusBtn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const title = plusBtn.dataset.title;
+                    const cart = getCartFromStorage();
+                    const item = cart.find(i => i.title === title);
+                    if (item) {
+                        item.quantity++;
+                        saveCartToStorage(cart);
+                        renderCart();
+                        if (typeof renderFullCartGlobal === 'function') renderFullCartGlobal();
+                    }
+                    return;
+                }
+
+                if (minusBtn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const title = minusBtn.dataset.title;
+                    let cart = getCartFromStorage();
+                    const item = cart.find(i => i.title === title);
+                    if (item) {
+                        if (item.quantity > 1) item.quantity--;
+                        else cart = cart.filter(i => i.title !== title);
+                        saveCartToStorage(cart);
+                        renderCart();
+                        if (typeof renderFullCartGlobal === 'function') renderFullCartGlobal();
+                    }
+                    return;
+                }
+
+                if (removeBtn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const title = removeBtn.dataset.title;
+                    let cart = getCartFromStorage().filter(i => i.title !== title);
                     saveCartToStorage(cart);
                     renderCart();
+                    if (typeof renderFullCartGlobal === 'function') renderFullCartGlobal();
+                    return;
                 }
             });
-        });
-
-        document.querySelectorAll('.cart-item .qty-btn.minus').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const title = e.currentTarget.dataset.title;
-                let cart = getCartFromStorage();
-                const item = cart.find(i => i.title === title);
-                if (item) {
-                    if (item.quantity > 1) item.quantity--;
-                    else cart = cart.filter(i => i.title !== title);
-                    saveCartToStorage(cart);
-                    renderCart();
-                }
-            });
-        });
-
-        document.querySelectorAll('.cart-item__remove').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const title = e.currentTarget.dataset.title;
-                let cart = getCartFromStorage().filter(i => i.title !== title);
-                saveCartToStorage(cart);
-                renderCart();
-            });
-        });
+        }
     }
 
     renderCart();
@@ -514,7 +530,9 @@ function initFullCartPage() {
 
         document.querySelectorAll('.full-qty-btn.plus').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const idx = parseInt(e.target.dataset.index);
+                const targetBtn = e.target.closest('.full-qty-btn.plus');
+                if (!targetBtn) return;
+                const idx = parseInt(targetBtn.dataset.index);
                 const cart = getCartFromStorage();
                 if (cart[idx]) cart[idx].quantity++;
                 saveCartToStorage(cart);
@@ -524,7 +542,9 @@ function initFullCartPage() {
 
         document.querySelectorAll('.full-qty-btn.minus').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const idx = parseInt(e.target.dataset.index);
+                const targetBtn = e.target.closest('.full-qty-btn.minus');
+                if (!targetBtn) return;
+                const idx = parseInt(targetBtn.dataset.index);
                 let cart = getCartFromStorage();
                 if (cart[idx]) {
                     if (cart[idx].quantity > 1) cart[idx].quantity--;
@@ -537,7 +557,9 @@ function initFullCartPage() {
 
         document.querySelectorAll('.delete-item-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const idx = parseInt(e.target.dataset.index);
+                const targetBtn = e.target.closest('.delete-item-btn');
+                if (!targetBtn) return;
+                const idx = parseInt(targetBtn.dataset.index);
                 let cart = getCartFromStorage();
                 cart.splice(idx, 1);
                 saveCartToStorage(cart);
