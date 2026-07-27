@@ -893,35 +893,100 @@ function initCatalogFilters() {
     const grid = document.getElementById('catalog-products-grid');
     if (!grid) return;
 
-    // --- ПАРСИНГ URL-ПАРАМЕТРОВ ПЕРЕХОДА (например catalog.html?cat=hoodie) ---
-    const urlParams = new URLSearchParams(window.location.search);
-    const catParam = urlParams.get('cat');
-    if (catParam) {
-        const catChecks = document.querySelectorAll('#dropdown-cat input[type=checkbox]');
-        let matched = false;
-        catChecks.forEach(c => {
-            if (c.value === catParam || catParam.includes(c.value) || c.value.includes(catParam)) {
-                c.checked = true;
-                matched = true;
-            } else {
-                c.checked = false;
+    const catStep = document.getElementById('catalog-category-step');
+    const prodStep = document.getElementById('catalog-products-step');
+    const backBtn = document.getElementById('back-to-cats-btn');
+    const catTitleBadge = document.getElementById('selected-cat-title-badge');
+
+    const catNamesMap = {
+        'hoodie': 'ХУДИ & СВИТШОТЫ',
+        'tshirt': 'ФУТБОЛКИ & ЛОНГСЛИВЫ',
+        'jackets': 'КУРТКИ & ПУХОВИКИ',
+        'pants': 'БРЮКИ & ДЖИНСЫ',
+        'shoes': 'ОБУВЬ & КРОССОВКИ',
+        'accessories': 'АКСЕССУАРЫ & СУМКИ',
+        'all': 'ВСЕ КАТЕГОРИИ'
+    };
+
+    function showCategoryProducts(catValue) {
+        if (catStep && prodStep) {
+            catStep.style.display = 'none';
+            prodStep.style.display = 'block';
+        }
+
+        if (catValue && catValue !== 'all') {
+            const catChecks = document.querySelectorAll('#dropdown-cat input[type=checkbox]');
+            let matched = false;
+            catChecks.forEach(c => {
+                if (c.value === catValue || catValue.includes(c.value) || c.value.includes(catValue)) {
+                    c.checked = true;
+                    matched = true;
+                } else {
+                    c.checked = false;
+                }
+            });
+            if (!matched) {
+                catChecks.forEach(c => c.checked = true);
             }
-        });
-        if (!matched) {
+            if (catTitleBadge) {
+                catTitleBadge.textContent = catNamesMap[catValue] || catValue.toUpperCase();
+            }
+        } else {
+            const catChecks = document.querySelectorAll('#dropdown-cat input[type=checkbox]');
             catChecks.forEach(c => c.checked = true);
+            if (catTitleBadge) catTitleBadge.textContent = 'ВСЕ КАТЕГОРИИ';
+        }
+
+        applyFilters();
+    }
+
+    function showCategorySelection() {
+        if (catStep && prodStep) {
+            prodStep.style.display = 'none';
+            catStep.style.display = 'block';
         }
     }
 
-    // Сброс
+    // Слушатели клика по большим карточкам выбора категории (Этап 1)
+    document.querySelectorAll('.cat-select-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            e.preventDefault();
+            const cat = card.dataset.cat;
+            if (cat) {
+                const newUrl = window.location.pathname + '?cat=' + cat;
+                window.history.pushState({ cat }, '', newUrl);
+                showCategoryProducts(cat);
+            }
+        });
+    });
+
+    // Кнопка возврата к выбору категорий
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            window.history.pushState({}, '', window.location.pathname);
+            showCategorySelection();
+        });
+    }
+
+    // Проверка URL параметров при загрузке
+    const urlParams = new URLSearchParams(window.location.search);
+    const catParam = urlParams.get('cat');
+    if (catParam) {
+        showCategoryProducts(catParam);
+    } else {
+        showCategorySelection();
+    }
+
+    // Сброс фильтров
     const resetBtn = document.getElementById('reset-filters-btn');
     if (resetBtn) {
         resetBtn.addEventListener('click', () => {
-            // Поставить все чекбоксы категорий в true
             grid.querySelectorAll('.product-card').forEach(c => c.style.display = '');
             const catChecks = document.querySelectorAll('#dropdown-cat input[type=checkbox]');
             catChecks.forEach(c => c.checked = true);
             const sortNew = document.querySelector('#dropdown-sort input[value=new]');
             if (sortNew) sortNew.checked = true;
+            if (catTitleBadge) catTitleBadge.textContent = 'ВСЕ КАТЕГОРИИ';
             applyFilters();
         });
     }
@@ -930,32 +995,25 @@ function initCatalogFilters() {
     function applyFilters() {
         const cards = Array.from(grid.querySelectorAll('.product-card'));
 
-        // --- Фильтр по КАТЕГОРИИ ---
         const checkedCats = Array.from(
             document.querySelectorAll('#dropdown-cat input[type=checkbox]:checked')
         ).map(c => c.value);
 
-        // --- Сортировка ---
         const sortVal = document.querySelector('#dropdown-sort input[type=radio]:checked')?.value || 'new';
 
-        // Показываем / скрываем
         let visible = cards.filter(card => {
             const cat = card.dataset.category || '';
             return checkedCats.length === 0 || checkedCats.some(c => cat.includes(c));
         });
 
-        // Сортировка видимых карточек
         if (sortVal === 'asc') {
             visible.sort((a, b) => parseFloat(a.dataset.price) - parseFloat(b.dataset.price));
         } else if (sortVal === 'desc') {
             visible.sort((a, b) => parseFloat(b.dataset.price) - parseFloat(a.dataset.price));
         }
-        // 'new' — оставляем как в DOM (порядок добавления)
 
-        // Скрываем все
         cards.forEach(c => { c.style.display = 'none'; c.style.order = ''; });
 
-        // Показываем и расставляем order
         visible.forEach((c, i) => {
             c.style.display = '';
             c.style.order = i;
@@ -965,13 +1023,9 @@ function initCatalogFilters() {
         if (noMsg) noMsg.style.display = visible.length === 0 ? 'block' : 'none';
     }
 
-    // Вешаем обработчики на все чекбоксы и radio
     document.querySelectorAll('.filter-dropdown-menu input').forEach(inp => {
         inp.addEventListener('change', applyFilters);
     });
 
-    // Устанавливаем grid как flex с order support
     grid.style.display = 'grid';
-
-    applyFilters();
 }
