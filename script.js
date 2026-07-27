@@ -113,88 +113,91 @@ function initMobileNav() {
 }
 
 /* ==========================================
-   ГЛОБАЛЬНЫЙ ДЕЛЕГАТ КЛИКОВ "В КОРЗИНУ"
+   ГЛОБАЛЬНЫЙ ДЕЛЕГАТ КЛИКОВ «В КОРЗИНУ» И ИКОНКИ КОРЗИНЫ
    ========================================== */
 function initGlobalCartEvents() {
-    function handleAddToCart(btn, e) {
-        if (!btn) return;
+    document.addEventListener('click', function(e) {
 
-        if (btn.tagName === 'A' || btn.hasAttribute('href')) {
-            const href = btn.getAttribute('href') || '';
-            if (href.includes('.html')) {
+        // 1. Клик по иконке корзины (.cart-btn) — открыть выезжающую шторку
+        const cartIconBtn = e.target.closest('.cart-btn');
+        if (cartIconBtn) {
+            // На странице cart.html — не открываем шторку (уже на странице корзины)
+            if (window.location.pathname.includes('cart.html')) return;
+            // На checkout.html — переходим в корзину
+            if (window.location.pathname.includes('checkout.html')) {
+                window.location.href = 'cart.html';
                 return;
             }
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof openMiniCartGlobal === 'function') openMiniCartGlobal();
+            return;
         }
+
+        // 2. Клик по кнопке «В корзину» внутри карточки товара
+        const btn = e.target.closest('button');
+        if (!btn) return;
 
         const btnText = btn.textContent.trim().toLowerCase();
         const isAddBtn = (btnText === 'в корзину' || btnText === 'добавить в корзину');
+        if (!isAddBtn) return;
 
-        if (isAddBtn && !btnText.includes('перейти')) {
-            if (e) e.preventDefault();
+        e.preventDefault();
 
-            const card = btn.closest('.product-card') || btn.closest('.product-page') || btn.closest('.product-details');
-            
-            let title = 'OVERSIZE HOODIE URBAN BLACK';
-            let category = 'МУЖСКАЯ ОДЕЖДА';
-            let price = 4990;
-            let image = './images/oversize_hoodie_black.jpg';
-            let qty = 1;
+        const card = btn.closest('.product-card') || btn.closest('.product-page') || btn.closest('.product-details');
 
-            if (card) {
-                const titleEl = card.querySelector('.product-card__title') || card.querySelector('.product-details__title');
-                if (titleEl) title = titleEl.textContent.trim();
+        let title = 'OVERSIZE HOODIE URBAN BLACK';
+        let category = 'МУЖСКАЯ ОДЕЖДА';
+        let price = 4990;
+        let image = './images/oversize_hoodie_black.jpg';
+        let qty = 1;
 
-                const catEl = card.querySelector('.product-card__category');
-                if (catEl) category = catEl.textContent.trim();
+        if (card) {
+            const titleEl = card.querySelector('.product-card__title a') ||
+                            card.querySelector('.product-card__title') ||
+                            card.querySelector('.product-details__title');
+            if (titleEl) title = titleEl.textContent.trim();
 
-                const priceEl = card.querySelector('.price-current') || card.querySelector('.price-current--large');
-                if (priceEl) price = parsePrice(priceEl.textContent);
+            const catEl = card.querySelector('.product-card__category');
+            if (catEl) category = catEl.textContent.trim();
 
-                const imgEl = card.querySelector('.product-card__img') || card.querySelector('.product-gallery__main img');
-                if (imgEl) image = imgEl.getAttribute('src');
+            const priceEl = card.querySelector('.price-current') || card.querySelector('.price-current--large');
+            if (priceEl) price = parsePrice(priceEl.textContent);
 
-                const qtyInput = card.querySelector('.quantity-input');
-                if (qtyInput) qty = parseInt(qtyInput.value) || 1;
-            }
+            const imgEl = card.querySelector('.product-card__img') || card.querySelector('.product-gallery__main img');
+            if (imgEl) image = imgEl.getAttribute('src');
 
-            const product = {
-                id: Date.now(),
-                title,
-                category,
-                price,
-                image,
-                quantity: qty,
-                checked: true
-            };
-
-            let cart = getCartFromStorage();
-            const existing = cart.find(i => i.title === product.title);
-            if (existing) {
-                existing.quantity += product.quantity;
-                existing.checked = true;
-            } else {
-                cart.push(product);
-            }
-
-            saveCartToStorage(cart);
-
-            const oldText = btn.textContent;
-            btn.classList.add('added-to-cart');
-            btn.textContent = 'В КОРЗИНЕ ✓';
-            setTimeout(() => {
-                btn.classList.remove('added-to-cart');
-                btn.textContent = oldText;
-            }, 2500);
-
-            if (typeof renderMiniCartGlobal === 'function') renderMiniCartGlobal();
-            if (typeof renderFullCartGlobal === 'function') renderFullCartGlobal();
-            if (typeof openMiniCartGlobal === 'function') openMiniCartGlobal();
+            const qtyInput = card.querySelector('.quantity-input');
+            if (qtyInput) qty = parseInt(qtyInput.value) || 1;
         }
-    }
 
-    document.addEventListener('click', (e) => {
-        const btn = e.target.closest('.btn') || e.target.closest('button');
-        if (btn) handleAddToCart(btn, e);
+        const product = { id: Date.now(), title, category, price, image, quantity: qty, checked: true };
+
+        let cart = getCartFromStorage();
+        const existing = cart.find(i => i.title === product.title);
+        if (existing) {
+            existing.quantity += product.quantity;
+            existing.checked = true;
+        } else {
+            cart.push(product);
+        }
+        saveCartToStorage(cart);
+
+        // Анимация кнопки
+        const oldText = btn.textContent;
+        btn.classList.add('added-to-cart');
+        btn.textContent = '✓ В КОРЗИНЕ';
+        btn.disabled = true;
+        setTimeout(() => {
+            btn.classList.remove('added-to-cart');
+            btn.textContent = oldText;
+            btn.disabled = false;
+        }, 2000);
+
+        // Обновить и открыть шторку
+        if (typeof renderMiniCartGlobal === 'function') renderMiniCartGlobal();
+        if (typeof renderFullCartGlobal === 'function') renderFullCartGlobal();
+        if (typeof openMiniCartGlobal === 'function') openMiniCartGlobal();
     });
 }
 
@@ -233,24 +236,9 @@ function initMiniCart() {
         }
     }
 
-    // Глобальное делегирование кликов по кнопке и иконке корзины на любой странице
+    // Закрытие по крестику и оверлею — через делегирование
     document.addEventListener('click', (e) => {
-        const cartBtn = e.target.closest('.cart-btn');
-        if (cartBtn) {
-            if (window.location.pathname.includes('checkout.html')) {
-                window.location.href = 'cart.html';
-                return;
-            }
-            if (window.location.pathname.includes('cart.html')) {
-                return; // на странице cart.html клик ведает на страницу
-            }
-            e.preventDefault();
-            e.stopPropagation();
-            openCart();
-            return;
-        }
-
-        if (e.target.closest('#cart-close-btn') || e.target === document.getElementById('cart-overlay')) {
+        if (e.target.closest('#cart-close-btn') || e.target.id === 'cart-overlay') {
             closeCart();
         }
     });
