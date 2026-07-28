@@ -1483,24 +1483,27 @@ img { max-width: 100%; display: block; object-fit: cover; }
    СОВРЕМЕННЫЕ ПЛИТКИ ВЫБОРА ДОСТАВКИ И ОПЛАТЫ
    ========================================== */
 .checkout-tiles-grid {
-    display: grid;
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 12px;
     margin-top: 14px;
+    width: 100%;
 }
 
 .checkout-option-tile {
     position: relative;
     display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 16px 18px;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
     background-color: #ffffff;
     border: 2px solid var(--color-border);
     border-radius: var(--radius-md);
     cursor: pointer;
     transition: border-color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease;
     user-select: none;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .checkout-option-tile input[type="radio"] {
@@ -1512,8 +1515,9 @@ img { max-width: 100%; display: block; object-fit: cover; }
 }
 
 .checkout-tile-radio-indicator {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
     border-radius: 50%;
     border: 2px solid #cbd5e1;
     background-color: #ffffff;
@@ -1521,13 +1525,14 @@ img { max-width: 100%; display: block; object-fit: cover; }
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    margin-top: 2px;
     transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .checkout-tile-radio-indicator::after {
     content: '';
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     background-color: #ffffff;
     transform: scale(0);
@@ -1558,36 +1563,39 @@ img { max-width: 100%; display: block; object-fit: cover; }
 }
 
 .checkout-tile-info {
-    flex-grow: 1;
+    flex: 1;
+    min-width: 0;
 }
 
 .checkout-tile-title-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
-    margin-bottom: 2px;
+    gap: 6px;
+    margin-bottom: 4px;
+    flex-wrap: wrap;
 }
 
 .checkout-tile-title {
     font-family: var(--font-heading);
-    font-size: 0.88rem;
+    font-size: 0.85rem;
     font-weight: 800;
     color: var(--color-text-main);
+    word-break: break-word;
 }
 
 .checkout-tile-price {
     font-family: var(--font-heading);
-    font-size: 0.88rem;
+    font-size: 0.82rem;
     font-weight: 900;
     color: var(--color-primary);
     white-space: nowrap;
 }
 
 .checkout-tile-desc {
-    font-size: 0.78rem;
+    font-size: 0.76rem;
     color: var(--color-text-muted);
-    line-height: 1.35;
+    line-height: 1.4;
 }
 
 /* Кнопка-глаз для пароля */
