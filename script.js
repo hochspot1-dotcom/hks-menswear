@@ -657,6 +657,26 @@ function initCheckoutPage() {
         });
     });
 
+    document.querySelectorAll('.checkout-option-tile').forEach(tile => {
+        tile.addEventListener('click', () => {
+            const radio = tile.querySelector('input[type="radio"]');
+            if (radio) {
+                radio.checked = true;
+                const groupName = radio.name;
+                document.querySelectorAll(`input[name="${groupName}"]`).forEach(r => {
+                    const parentTile = r.closest('.checkout-option-tile');
+                    if (parentTile) parentTile.classList.remove('active');
+                });
+                tile.classList.add('active');
+
+                if (groupName === 'shipping-method') {
+                    shippingCost = parseInt(radio.value) || 0;
+                    calculateCheckout();
+                }
+            }
+        });
+    });
+
     if (submitBtn) {
         submitBtn.addEventListener('click', async (e) => {
             e.preventDefault();

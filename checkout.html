@@ -90,9 +90,15 @@
 
             <h1 class="cart-main-title">ОФОРМЛЕНИЕ</h1>
 
-            <!-- КОРУНДОВЫЙ БАННЕР -->
-            <div class="checkout-coral-banner">
-                👉 Зарегистрируйся на сайте и получи доступ к персональным ценам со скидками!
+            <!-- АНИМИРОВАННЫЙ БАННЕР РЕГИСТРАЦИИ C ПЕРСОНАЛЬНОЙ СКИДКОЙ -->
+            <div class="checkout-promo-cta-banner">
+                <div>
+                    <span class="checkout-promo-cta-badge">🔥 СКИДКА -10% НА ПЕРВЫЙ ЗАКАЗ</span>
+                    <div class="checkout-promo-cta-text">
+                        Зарегистрируйтесь прямо сейчас и получите автоматическую скидку -10% на этот и все последующие заказы!
+                    </div>
+                </div>
+                <a href="profile.html" class="checkout-promo-cta-btn">Зарегистрироваться ↗</a>
             </div>
 
             <div class="checkout-grid">
@@ -209,52 +215,75 @@
                         </div>
                     </div>
 
-                    <!-- 2. БЛОК ДОСТАВКИ ПО СНИМКУ -->
+                    <!-- 2. БЛОК ВЫБОРА СПОСОБА ДОСТАВКИ (СОВРЕМЕННЫЕ ПЛИТКИ) -->
                     <div class="cart-box">
-                        <h3 class="cart-box__title" style="font-size: 1rem; margin-bottom: 14px;">ДОСТАВКА 🛈</h3>
-                        <div class="radio-options-list">
-                            <label class="radio-option-item">
+                        <h3 class="cart-box__title" style="font-size: 1rem; margin-bottom: 14px;">СПОСОБ ДОСТАВКИ 🚚</h3>
+                        <div class="checkout-tiles-grid">
+                            <label class="checkout-option-tile active">
                                 <input type="radio" name="shipping-method" value="249" checked>
-                                <span>Заказная (Почта России): <strong>249 руб</strong></span>
+                                <span class="checkout-tile-radio-indicator"></span>
+                                <div class="checkout-tile-info">
+                                    <div class="checkout-tile-title-row">
+                                        <span class="checkout-tile-title">📦 Почта России (Заказная)</span>
+                                        <span class="checkout-tile-price">249 руб</span>
+                                    </div>
+                                    <div class="checkout-tile-desc">Доставка в ближайшее отделение Почты России (2–4 дня)</div>
+                                </div>
                             </label>
-                            <label class="radio-option-item">
+
+                            <label class="checkout-option-tile">
                                 <input type="radio" name="shipping-method" value="349">
-                                <span>Отложенная (Почта России): <strong>349 руб</strong></span>
+                                <span class="checkout-tile-radio-indicator"></span>
+                                <div class="checkout-tile-info">
+                                    <div class="checkout-tile-title-row">
+                                        <span class="checkout-tile-title">🚚 Курьер СДЭК (до двери)</span>
+                                        <span class="checkout-tile-price">349 руб</span>
+                                    </div>
+                                    <div class="checkout-tile-desc">Быстрая курьерская доставка прямо к вашей двери (1–3 дня)</div>
+                                </div>
                             </label>
-                            <label class="radio-option-item">
-                                <input type="radio" name="shipping-method" value="0">
-                                <span>Яндекс ПВЗ</span>
-                            </label>
-                            <label class="radio-option-item">
+
+                            <label class="checkout-option-tile">
                                 <input type="radio" name="shipping-method" value="199">
-                                <span>Простая (Почта России): <strong>199 руб</strong></span>
+                                <span class="checkout-tile-radio-indicator"></span>
+                                <div class="checkout-tile-info">
+                                    <div class="checkout-tile-title-row">
+                                        <span class="checkout-tile-title">⚡️ Яндекс ПВЗ</span>
+                                        <span class="checkout-tile-price">199 руб</span>
+                                    </div>
+                                    <div class="checkout-tile-desc">Удобный забор из ближайшего пункта выдачи Яндекс Маркет</div>
+                                </div>
                             </label>
                         </div>
                     </div>
 
-                    <!-- 3. СПОСОБ ОПЛАТЫ ПО СНИМКУ -->
-                    <div class="cart-box" style="background-color: #f1f5f9;">
-                        <h3 class="cart-box__title" style="font-size: 1.1rem; margin-bottom: 16px;">СПОСОБ ОПЛАТЫ</h3>
+                    <!-- 3. БЛОК ВЫБОРА СПОСОБА ОПЛАТЫ (СОВРЕМЕННЫЕ ПЛИТКИ) -->
+                    <div class="cart-box" style="background-color: #ffffff; border: 1.5px solid var(--color-border);">
+                        <h3 class="cart-box__title" style="font-size: 1.1rem; margin-bottom: 16px;">СПОСОБ ОПЛАТЫ 💳</h3>
                         
-                        <div class="radio-options-list">
-                            <label class="radio-option-item">
-                                <input type="radio" name="payment-method" value="cloudpayments" checked>
-                                <span>Онлайн оплата 💳 PAY VISA MIR</span>
+                        <div class="checkout-tiles-grid">
+                            <label class="checkout-option-tile active">
+                                <input type="radio" name="payment-method" value="online" checked>
+                                <span class="checkout-tile-radio-indicator"></span>
+                                <div class="checkout-tile-info">
+                                    <div class="checkout-tile-title-row">
+                                        <span class="checkout-tile-title">💳 Банковская карта / СБП</span>
+                                        <span class="checkout-tile-price">0% ком.</span>
+                                    </div>
+                                    <div class="checkout-tile-desc">Безопасная оплата картой MIR, Visa, MasterCard или через СБП</div>
+                                </div>
                             </label>
-                        </div>
 
-                        <div class="payment-info-box">
-                            Для оплаты заказа вы будете перенаправлены на страницу сервиса Cloud Payments.
-                        </div>
-
-                        <div class="radio-options-list" style="margin-top: 14px;">
-                            <label class="radio-option-item">
-                                <input type="radio" name="payment-method" value="transfer">
-                                <span>Оплата переводом</span>
-                            </label>
-                            <label class="radio-option-item">
-                                <input type="radio" name="payment-method" value="dolyami">
-                                <span>Оплата долями <strong>ДОЛЯМИ</strong></span>
+                            <label class="checkout-option-tile">
+                                <input type="radio" name="payment-method" value="cod">
+                                <span class="checkout-tile-radio-indicator"></span>
+                                <div class="checkout-tile-info">
+                                    <div class="checkout-tile-title-row">
+                                        <span class="checkout-tile-title">💵 При получении</span>
+                                        <span class="checkout-tile-price">Наложенный платеж</span>
+                                    </div>
+                                    <div class="checkout-tile-desc">Оплата наличными или картой курьеру после проверки товара</div>
+                                </div>
                             </label>
                         </div>
 
