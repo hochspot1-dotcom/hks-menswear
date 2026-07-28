@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initCatalogFilters();
     initSearchModal();
     initDropdownFilters();
-    initDynamicProductSEO();
+    initProductDetailPage();
     initSupportWidget();
     initWishlistButtons();
 });
@@ -828,22 +828,243 @@ function initDropdownFilters() {
     });
 }
 
-function initDynamicProductSEO() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const productId = urlParams.get('id');
-    if (!productId || !document.querySelector('.product-page')) return;
+function initProductDetailPage() {
+    const pageContainer = document.querySelector('.product-page');
+    if (!pageContainer) return;
 
-    fetch(`/api/products/${productId}`)
-        .then(res => res.json())
-        .then(prod => {
-            if (!prod || prod.error) return;
-            document.title = `${prod.title} – Купить за ${prod.price} руб | HKS MAN`;
-            const titleEl = document.querySelector('.product-details__title');
-            if (titleEl) titleEl.textContent = prod.title;
-            const priceEl = document.querySelector('.price-current--large');
-            if (priceEl) priceEl.textContent = `${prod.price} руб`;
-        })
-        .catch(() => {});
+    const params = new URLSearchParams(window.location.search);
+    const prodId = params.get('id') || 'h01';
+    const prodTitleParam = params.get('title');
+    const prodPriceParam = params.get('price');
+    const prodImgParam = params.get('img');
+    const prodCatParam = params.get('cat');
+
+    const productCatalog = {
+        'h01': {
+            title: 'OVERSIZE HOODIE URBAN BLACK',
+            category: 'ХУДИ & СВИТШОТЫ',
+            price: 4990,
+            oldPrice: 6490,
+            image: './images/oversize_hoodie_black.jpg',
+            desc: 'Мужское оверсайз худи из плотного 100% хлопкового флиса премиального качества (460 г/м²). Глубокий капюшон, спущенное плечо и двойной карман-кенгуру.',
+            sizes: [
+                { name: 'S (46-48)', inStock: true },
+                { name: 'M (48-50)', inStock: true },
+                { name: 'L (50-52)', inStock: true },
+                { name: 'XL (52-54)', inStock: true },
+                { name: 'XXL (54-56)', inStock: false }
+            ]
+        },
+        'p01': {
+            title: 'CARGO PANTS TACTICAL KHAKI',
+            category: 'БРЮКИ & КАРГО',
+            price: 5490,
+            oldPrice: 6990,
+            image: './images/cargo_pants_khaki.jpg',
+            desc: 'Тактические оверсайз брюки-карго из прочной ткани рип-стоп с водоотталкивающей пропиткой. 6 вместительных карманов и утяжки снизу.',
+            sizes: [
+                { name: 'S (46-48)', inStock: false },
+                { name: 'M (48-50)', inStock: true },
+                { name: 'L (50-52)', inStock: true },
+                { name: 'XL (52-54)', inStock: true },
+                { name: 'XXL (54-56)', inStock: false }
+            ]
+        },
+        't01': {
+            title: 'HEAVY COTTON T-SHIRT WHITE',
+            category: 'ФУТБОЛКИ',
+            price: 2290,
+            oldPrice: 2990,
+            image: './images/white_tshirt_urban.jpg',
+            desc: 'Плотная хлопковая футболка оверсайз кроя (240 г/м²). Держащий форму воротник, спущенный рукав и плотные ровные швы.',
+            sizes: [
+                { name: 'S (46-48)', inStock: true },
+                { name: 'M (48-50)', inStock: true },
+                { name: 'L (50-52)', inStock: true },
+                { name: 'XL (52-54)', inStock: true },
+                { name: 'XXL (54-56)', inStock: true }
+            ]
+        },
+        'j01': {
+            title: 'PUFFER JACKET URBAN BLUE',
+            category: 'КУРТКИ & ПУХОВИКИ',
+            price: 8990,
+            oldPrice: 11990,
+            image: './images/puffer_jacket_blue.jpg',
+            desc: 'Теплый объемный пуховик с технологичным утеплителем Thinsulate. Водонепроницаемый верховой слой, высокий воротник-стойка и регулируемый низ.',
+            sizes: [
+                { name: 'S (46-48)', inStock: false },
+                { name: 'M (48-50)', inStock: true },
+                { name: 'L (50-52)', inStock: true },
+                { name: 'XL (52-54)', inStock: true },
+                { name: 'XXL (54-56)', inStock: false }
+            ]
+        },
+        's01': {
+            title: 'STREETWEAR CHUNKY SNEAKERS BLACK',
+            category: 'ОБУВЬ & КРОССОВКИ',
+            price: 9990,
+            oldPrice: 12990,
+            image: './images/streetwear_sneakers_black.jpg',
+            desc: 'Массивные силуэтные кроссовки из натуральной замши и дышащего текстиля. Амортизирующая массивная подошва и износостойкий протектор.',
+            sizes: [
+                { name: '40 EUR', inStock: true },
+                { name: '41 EUR', inStock: true },
+                { name: '42 EUR', inStock: true },
+                { name: '43 EUR', inStock: true },
+                { name: '44 EUR', inStock: true },
+                { name: '45 EUR', inStock: false }
+            ]
+        },
+        'a01': {
+            title: 'TACTICAL CROSSBODY BAG BLACK',
+            category: 'АКСЕССУАРЫ & СУМКИ',
+            price: 3190,
+            oldPrice: 3990,
+            image: './images/streetwear_accessory_bag.jpg',
+            desc: 'Компактная тактическая сумка через плечо из непромокаемого нейлона Cordura. Защищенная молния YKK и регулируемый ремень.',
+            sizes: [
+                { name: 'ONE SIZE', inStock: true }
+            ]
+        }
+    };
+
+    let prod = productCatalog[prodId] || productCatalog['h01'];
+    if (prodTitleParam) {
+        prod = {
+            title: prodTitleParam,
+            category: prodCatParam || 'STREETWEAR',
+            price: parseInt(prodPriceParam) || 4990,
+            oldPrice: Math.round((parseInt(prodPriceParam) || 4990) * 1.3),
+            image: prodImgParam || './images/oversize_hoodie_black.jpg',
+            desc: 'Премиальное качество материалов, эргономичный крой и максимальный комфорт в носке.',
+            sizes: [
+                { name: 'S (46-48)', inStock: true },
+                { name: 'M (48-50)', inStock: true },
+                { name: 'L (50-52)', inStock: true },
+                { name: 'XL (52-54)', inStock: true },
+                { name: 'XXL (54-56)', inStock: false }
+            ]
+        };
+    }
+
+    document.title = `${prod.title} – HKS MAN`;
+    
+    const breadcrumbEl = document.getElementById('breadcrumb-prod-title');
+    if (breadcrumbEl) breadcrumbEl.textContent = prod.title;
+
+    const mainImgEl = document.getElementById('product-main-img');
+    if (mainImgEl) {
+        mainImgEl.src = prod.image;
+        mainImgEl.alt = prod.title;
+    }
+
+    const catBadge = document.getElementById('product-category-tag');
+    if (catBadge) catBadge.textContent = `✦ ${prod.category}`;
+
+    const titleHeading = document.getElementById('product-title-heading');
+    if (titleHeading) titleHeading.textContent = prod.title;
+
+    const priceDisplay = document.getElementById('product-price-display');
+    if (priceDisplay) priceDisplay.textContent = `${formatPrice(prod.price)} руб`;
+
+    const oldPriceDisplay = document.getElementById('product-old-price-display');
+    if (oldPriceDisplay) oldPriceDisplay.textContent = `${formatPrice(prod.oldPrice)} руб`;
+
+    const discountBadge = document.getElementById('product-discount-badge');
+    if (discountBadge && prod.price && prod.oldPrice) {
+        const discPercent = Math.round((1 - prod.price / prod.oldPrice) * 100);
+        discountBadge.textContent = `-${discPercent}%`;
+    }
+
+    const descText = document.getElementById('product-desc-text');
+    if (descText) descText.textContent = prod.desc;
+
+    const sizePillsContainer = document.getElementById('product-size-pills');
+    if (sizePillsContainer) {
+        sizePillsContainer.innerHTML = '';
+        prod.sizes.forEach((s, idx) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = `size-pill-btn ${s.inStock ? '' : 'out-of-stock'} ${s.inStock && idx === 0 ? 'selected' : ''}`;
+            if (!s.inStock) btn.disabled = true;
+            btn.dataset.sizeName = s.name;
+            btn.innerHTML = `
+                <span>${s.name}</span>
+                <span class="size-stock-label">${s.inStock ? '✓ В наличии' : 'Нет в наличии'}</span>
+            `;
+            
+            if (s.inStock) {
+                btn.addEventListener('click', () => {
+                    sizePillsContainer.querySelectorAll('.size-pill-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                });
+            }
+            sizePillsContainer.appendChild(btn);
+        });
+    }
+
+    const qtyValEl = document.getElementById('prod-qty-val');
+    const qtyMinusBtn = document.getElementById('prod-qty-minus');
+    const qtyPlusBtn = document.getElementById('prod-qty-plus');
+    let currentQty = 1;
+
+    if (qtyMinusBtn && qtyPlusBtn && qtyValEl) {
+        qtyMinusBtn.addEventListener('click', () => {
+            if (currentQty > 1) {
+                currentQty--;
+                qtyValEl.textContent = currentQty;
+            }
+        });
+        qtyPlusBtn.addEventListener('click', () => {
+            currentQty++;
+            qtyValEl.textContent = currentQty;
+        });
+    }
+
+    const addCartBtn = document.getElementById('product-add-cart-btn');
+    if (addCartBtn) {
+        addCartBtn.addEventListener('click', () => {
+            const selectedSizeBtn = sizePillsContainer ? sizePillsContainer.querySelector('.size-pill-btn.selected') : null;
+            const selectedSize = selectedSizeBtn ? selectedSizeBtn.dataset.sizeName : (prod.sizes[0] ? prod.sizes[0].name : 'M');
+
+            const itemToAdd = {
+                title: `${prod.title} (${selectedSize.split(' ')[0]})`,
+                price: prod.price,
+                image: prod.image,
+                category: prod.category,
+                quantity: currentQty,
+                checked: true
+            };
+
+            const cart = getCartFromStorage();
+            const existing = cart.find(i => i.title === itemToAdd.title);
+            if (existing) {
+                existing.quantity += currentQty;
+            } else {
+                cart.push(itemToAdd);
+            }
+            saveCartToStorage(cart);
+
+            const btnSpan = addCartBtn.querySelector('span');
+            if (btnSpan) btnSpan.textContent = '✓ ДОБАВЛЕНО В КОРЗИНУ';
+            addCartBtn.style.backgroundColor = '#16a34a';
+
+            if (typeof renderMiniCartGlobal === 'function') renderMiniCartGlobal();
+
+            setTimeout(() => {
+                if (btnSpan) btnSpan.textContent = 'В КОРЗИНУ';
+                addCartBtn.style.backgroundColor = '';
+            }, 2000);
+        });
+    }
+
+    document.querySelectorAll('.acc-header').forEach(hdr => {
+        hdr.addEventListener('click', () => {
+            const item = hdr.closest('.acc-item');
+            if (item) item.classList.toggle('active');
+        });
+    });
 }
 
 function initHeroSlider() {

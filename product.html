@@ -64,70 +64,114 @@
 
     <main class="product-page">
         <div class="container">
-            <nav class="breadcrumbs" aria-label="Хлебные крошки" style="margin: 20px 0; font-size: 0.85rem; color: var(--color-text-muted);">
-                <a href="index.html">Главная</a> / <a href="catalog.html">Каталог</a> / <span style="color: var(--color-text-main);">OVERSIZE HOODIE URBAN BLACK</span>
+            <nav class="breadcrumbs" aria-label="Хлебные крошки">
+                <a href="index.html">Главная</a> / <a href="catalog.html">Каталог</a> / <span id="breadcrumb-prod-title" style="color: var(--color-text-main);">OVERSIZE HOODIE URBAN BLACK</span>
             </nav>
 
-            <section class="product-view">
-                <div class="product-gallery">
-                    <div class="gallery-item">
-                        <img src="./images/oversize_hoodie_black.jpg" alt="OVERSIZE HOODIE URBAN BLACK" style="width: 100%; height: 440px; border-radius: var(--radius-lg); object-fit: cover;">
-                    </div>
-                    <div class="gallery-item">
-                        <img src="./images/puffer_jacket_blue.jpg" alt="Второй деталь фото" style="width: 100%; height: 440px; border-radius: var(--radius-lg); object-fit: cover;">
-                    </div>
+            <section class="product-view-grid">
+                <!-- ОДИН КРАСИВЫЙ БЛОК ГАЛЕРЕИ ТОВАРА БЕЗ ЛИШНИХ КАРТИНОК -->
+                <div class="product-gallery-single">
+                    <img id="product-main-img" src="./images/oversize_hoodie_black.jpg" alt="OVERSIZE HOODIE URBAN BLACK" class="product-gallery-single__img">
                 </div>
 
+                <!-- ДЕТАЛИ И ВЫБОР РАЗМЕРОВ -->
                 <div class="product-details">
-                    <div class="product-details__meta">
-                        <span class="badge">STREETWEAR DROP</span>
-                        <span class="sku">Артикул: HKSM-H01</span>
+                    <div>
+                        <div class="product-details__category-badge" id="product-category-tag">
+                            ✦ ХУДИ & СВИТШОТЫ
+                        </div>
+                        <h1 class="product-details__title" id="product-title-heading">OVERSIZE HOODIE URBAN BLACK</h1>
                     </div>
 
-                    <h1 class="product-details__title">OVERSIZE HOODIE URBAN BLACK</h1>
-
-                    <div class="product-details__price-block">
-                        <span class="price-current price-current--large">4 990 руб</span>
+                    <div class="product-details__price-box">
+                        <span class="price-current price-current--large" id="product-price-display">4 990 руб</span>
+                        <span class="price-old--large" id="product-old-price-display">6 490 руб</span>
+                        <span class="discount-badge" id="product-discount-badge">-23%</span>
                     </div>
 
-                    <p class="product-details__description">
+                    <div class="stock-status-tag" id="product-stock-status">
+                        <span>⚡️ В наличии 5 штук • Быстрая отправка</span>
+                    </div>
+
+                    <p class="product-details__desc" id="product-desc-text">
                         Мужское оверсайз худи из плотного 100% хлопкового флиса премиального качества (460 г/м²). Глубокий капюшон, спущенное плечо и двойной карман-кенгуру.
                     </p>
 
-                    <div class="product-options">
-                        <div class="option-group">
-                            <label class="option-group__label">Выберите размер:</label>
-                            <div class="option-sizes">
-                                <label class="option-size">
-                                    <input type="radio" name="size" value="S">
-                                    <span class="size-btn">S (46-48)</span>
-                                </label>
-                                <label class="option-size">
-                                    <input type="radio" name="size" value="M" checked>
-                                    <span class="size-btn">M (48-50)</span>
-                                </label>
-                                <label class="option-size">
-                                    <input type="radio" name="size" value="L">
-                                    <span class="size-btn">L (50-52)</span>
-                                </label>
-                                <label class="option-size">
-                                    <input type="radio" name="size" value="XL">
-                                    <span class="size-btn">XL (52-54)</span>
-                                </label>
+                    <!-- БЛОК ВЫБОРА РАЗМЕРОВ (В НАЛИЧИИ / НЕТ В НАЛИЧИИ) -->
+                    <div class="size-selection-box">
+                        <div class="size-selection-header">
+                            <span>Выберите размер:</span>
+                            <span class="size-guide-link">📏 Таблица размеров</span>
+                        </div>
+                        <div class="size-pills-grid" id="product-size-pills">
+                            <button type="button" class="size-pill-btn" data-size="S">
+                                <span>S (46-48)</span>
+                                <span class="size-stock-label">✓ В наличии</span>
+                            </button>
+                            <button type="button" class="size-pill-btn selected" data-size="M">
+                                <span>M (48-50)</span>
+                                <span class="size-stock-label">✓ В наличии</span>
+                            </button>
+                            <button type="button" class="size-pill-btn" data-size="L">
+                                <span>L (50-52)</span>
+                                <span class="size-stock-label">✓ В наличии</span>
+                            </button>
+                            <button type="button" class="size-pill-btn" data-size="XL">
+                                <span>XL (52-54)</span>
+                                <span class="size-stock-label">✓ В наличии</span>
+                            </button>
+                            <button type="button" class="size-pill-btn out-of-stock" data-size="XXL" disabled>
+                                <span>XXL (54-56)</span>
+                                <span class="size-stock-label">Нет в наличии</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- ДЕЙСТВИЯ -->
+                    <div class="product-actions-row">
+                        <div class="product-qty-selector">
+                            <button type="button" class="product-qty-btn" id="prod-qty-minus">-</button>
+                            <span class="product-qty-val" id="prod-qty-val">1</span>
+                            <button type="button" class="product-qty-btn" id="prod-qty-plus">+</button>
+                        </div>
+
+                        <button type="button" class="btn-add-to-cart-main" id="product-add-cart-btn">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                            <span>В КОРЗИНУ</span>
+                        </button>
+                    </div>
+
+                    <!-- АККОРДЕОН ХАРАКТЕРИСТИК -->
+                    <div class="product-info-acc">
+                        <div class="acc-item active">
+                            <div class="acc-header">
+                                <span>📌 Состав и характеристики</span>
+                                <span>▾</span>
+                            </div>
+                            <div class="acc-content">
+                                100% Плотный хлопок премиального качества (460 г/м²). Прямой оверсайз крой, мягкий начес внутри, уплотненные манжеты на рукавах и по низу изделия.
+                            </div>
+                        </div>
+                        <div class="acc-item">
+                            <div class="acc-header">
+                                <span>🚚 Доставка и примерка</span>
+                                <span>▾</span>
+                            </div>
+                            <div class="acc-content">
+                                Быстрая доставка по всей России СДЭК, Почтой России или курьером (1–3 дня). Доступна примерка перед покупкой.
+                            </div>
+                        </div>
+                        <div class="acc-item">
+                            <div class="acc-header">
+                                <span>🛡️ Гарантия и возврат</span>
+                                <span>▾</span>
+                            </div>
+                            <div class="acc-content">
+                                Гарантия качества на все швы и принт 1 год. Легкий возврат или обмен в течение 14 дней.
                             </div>
                         </div>
                     </div>
 
-                    <div class="product-actions">
-                        <div class="quantity-picker">
-                            <button class="quantity-btn">-</button>
-                            <input type="number" value="1" min="1" class="quantity-input">
-                            <button class="quantity-btn">+</button>
-                        </div>
-                        <button class="btn btn--primary btn--large btn--full">
-                            В корзину
-                        </button>
-                    </div>
                 </div>
             </section>
         </div>
