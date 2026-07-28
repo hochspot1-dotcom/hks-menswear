@@ -1454,3 +1454,17 @@ img { max-width: 100%; display: block; object-fit: cover; }
 .product-card__wishlist.heart-beat {
     animation: heartBeat 0.4s ease;
 }
+
+/* ==========================================
+   МОБИЛЬНОЕ СКРЫТИЕ ПЛАШКИ «ЕСТЬ ВОПРОСЫ»
+   (ОСТАЕТСЯ ТОЛЬКО ПЛАВАЮЩАЯ ИКОНКА ПОДДЕРЖКИ С АНИМАЦИЕЙ)
+   ========================================== */
+@media (max-width: 768px) {
+    .nks-support-badge {
+        display: none !important;
+    }
+    .nks-support-widget {
+        bottom: 16px !important;
+        right: 16px !important;
+    }
+}
